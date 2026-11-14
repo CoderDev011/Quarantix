@@ -28,6 +28,7 @@ from quarantix.api.autopilot_routes import (
     breach_listener,
     build_autopilot,
     proof_router,
+    results_router,
 )
 from quarantix.api.bus import EventBus
 from quarantix.api.domain_routes import domain_router
@@ -469,6 +470,7 @@ def create_app(settings: Settings) -> FastAPI:
     app.include_router(domain_router(require_admin))
     if settings.domains_dir is not None:
         app.include_router(proof_router(require_admin, settings.domains_dir.parent))
+        app.include_router(results_router(require_admin, settings.domains_dir.parent))
 
     # ---------------------------------------------------------------- the built dashboard (last!)
 

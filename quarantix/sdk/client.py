@@ -158,6 +158,7 @@ class Quarantix:
         self.last_sync: float | None = None  # monotonic time of the last successful poll
         self.warnings: list[str] = []
         self._tasks: list[asyncio.Task[None]] = []
+        self._writes: set[asyncio.Future[None]] = set()
         self._session: contextvars.ContextVar[GuardSession | None] = contextvars.ContextVar(
             f"qx-session-{agent}", default=None
         )
@@ -241,9 +242,13 @@ class Quarantix:
             )
         return self._client
 
-    async def start(self) -> None:
+    async def start(self, *, first_sync_timeout: float = 3.0) -> None:
+        """Start syncing and shipping. One quick sync first, so the agent starts online."""
         if self._tasks:
             return
+        with contextlib.suppress(Exception):  # offline at start: the fail-safe applies
+            async with asyncio.timeout(first_sync_timeout):
+                await self.sync_now(wait=0.0)
         self.events._wake = asyncio.Event()
         self._tasks = [
             asyncio.create_task(self._sync_loop()),
@@ -257,6 +262,8 @@ class Quarantix:
             with contextlib.suppress(asyncio.CancelledError):
                 await task
         self._tasks = []
+        if self._writes:  # finish cache writes so the file on disk is the last verified bundle
+            await asyncio.gather(*list(self._writes), return_exceptions=True)
         with contextlib.suppress(Exception):
             async with asyncio.timeout(flush_timeout):
                 while self.events.buffer and await self._flush_once():
@@ -285,7 +292,10 @@ class Quarantix:
         wire = response.json()
         bundle = _verify(wire)  # a bundle whose content does not match its version is refused
         fetched = self._wall()
-        await asyncio.to_thread(self._save_cache, wire, fetched)
+        write = asyncio.ensure_future(asyncio.to_thread(self._save_cache, wire, fetched))
+        self._writes.add(write)
+        write.add_done_callback(self._writes.discard)
+        await asyncio.shield(write)  # a cancelled poll never leaves a write running behind stop()
         self._use(bundle, fetched)
         self.last_sync = self._clock()
         return True

@@ -24,7 +24,7 @@ MEM_GB=$(awk '/MemTotal/ {printf "%d", $2/1024/1024}' /proc/meminfo)
 if (( MEM_GB >= 10 )); then ok "${MEM_GB} GB available to WSL"; else need "only ${MEM_GB} GB available to WSL; the full stack + Ollama needs ~10 GB"; fi
 
 echo "Ports"
-for port in 8000 11434; do
+for port in 8000 9000 11434; do
   if ss -ltn 2>/dev/null | awk '{print $4}' | grep -qE "[:.]${port}$"; then warn "port $port is already in use"; else ok "port $port free"; fi
 done
 

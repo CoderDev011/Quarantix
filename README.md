@@ -29,6 +29,11 @@ A firewall for AI agents. It tracks where every value came from and how sensitiv
 | The hour-6 engine demo, no LLM | `uv run python scripts/demo_core.py` |
 | Put demo events into a running console | `QX_API=http://127.0.0.1:8000 QX_AGENT_KEY=<support-agent key> uv run python scripts/demo_feed.py` |
 | Regenerate the console's API types | `bash scripts/gen_types.sh` |
+| Red-team table (free replay of recorded traces) | `uv run python scripts/redteam.py` |
+| Record real traces with the model (costs money) | `LLM_MODE=live uv run python scripts/redteam.py --live --record-traces --modes baseline` |
+| A guarded agent we did not write (the drop-in) | `QX_AGENT_KEY=<support key> uv run python scripts/guarded_agent.py support` |
+| Fake attacker page only (no Docker) | `uv run uvicorn --factory quarantix.attacker:create_app --port 9000` |
+| Big screen / console | http://localhost:8000/arena/screen · http://localhost:8000/ |
 
 `.env` must set `AGENTWALL_ADMIN_TOKEN` (16+ characters) and `AGENTWALL_AGENT_KEYS` (`agent:key`, keys of 12+ characters). The server refuses to start without them.
 

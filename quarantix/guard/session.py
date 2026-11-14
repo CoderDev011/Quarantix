@@ -136,7 +136,10 @@ class GuardSession:
         return ArgValue(value, label, evidence, node)
 
     def _absorb(self, spec: ToolSpec, result: Any, args: Mapping[str, ArgValue]) -> None:
-        inputs = join_all(a.label for a in args.values())
+        # Only arguments with trace evidence taint the result. An "inferred" label is just the
+        # session taint, which still applies as the context; joining it into every field would
+        # make our own records untrusted after any untrusted read (a false block found live).
+        inputs = join_all(a.label for a in args.values() if a.evidence != "inferred")
         base = spec.output_label if spec.endorses_output else spec.output_label.join(inputs)
         tool_source = f"tool:{spec.name}"
         field_labels = spec.field_labels

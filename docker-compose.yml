@@ -39,6 +39,15 @@ services:
       - "9000:9000"
     mem_limit: 256m
     restart: unless-stopped
+    healthcheck:  # the image's default check probes the API port; the attacker listens on 9000
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:9000/_log', timeout=2).status == 200 else 1)"
+      interval: 10s
+      timeout: 3s
+      retries: 3
 
   ollama:
     image: ollama/ollama:0.12.6

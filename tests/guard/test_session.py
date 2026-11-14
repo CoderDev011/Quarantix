@@ -170,3 +170,24 @@ async def test_a_custom_invoke_is_used_for_tools_we_did_not_write(support: Domai
         "post_message", {"channel": "#support-log", "text": "hi"}, invoke
     ) == ("ok from the real tool")
     assert calls == ["ran"] and s.world.ledgers["messages"] == []
+
+
+async def test_a_guessed_argument_does_not_taint_trusted_fields_of_the_result(
+    devops: Domain,
+) -> None:
+    """Found on a real Gemini run: the agent read logs with an untraceable service name, then
+    restarted that service. Only arguments with trace evidence may taint a result's labels."""
+    session, s, broker = guarded(devops)
+    await session.call("list_alerts", {})
+    await session.call("read_logs", {"service": "api", "lines": 20})  # "api" here is inferred
+    await session.call("restart_service", {"service": "api"})
+    assert s.world.ledgers["restarts"] == [{"service": "api"}]
+    assert broker.requested == 0 and s.recorder.blocks() == []
+    assert session.taint.integrity is Integrity.UNTRUSTED  # the session still knows what it read
+
+
+async def test_a_traced_untrusted_argument_still_taints_the_result(support: Domain) -> None:
+    session, _, _ = guarded(support, "Look up ORD-1004 for customer C-2 please")
+    await session.call("list_tickets", {"status": "new"})
+    order = await session.call("get_order", {"order_number": "ORD-1004", "customer_id": "C-2"})
+    assert order["amount"] == 1800.0  # endorsed: the lookup checked ownership itself

@@ -9,6 +9,7 @@ const Live = lazy(() => import('./pages/Live.tsx'))
 const Autopilot = lazy(() => import('./pages/Autopilot.tsx'))
 const Proof = lazy(() => import('./pages/Proof.tsx'))
 const Domains = lazy(() => import('./pages/Domains.tsx'))
+const Results = lazy(() => import('./pages/Results.tsx'))
 const ArenaAdmin = lazy(() => import('./pages/ArenaAdmin.tsx'))
 const ArenaScreen = lazy(() => import('./pages/ArenaScreen.tsx'))
 
@@ -16,6 +17,7 @@ const NAV = [
   { path: '/', label: 'Live' },
   { path: '/autopilot', label: 'Autopilot' },
   { path: '/proof', label: 'Proof wall' },
+  { path: '/results', label: 'Results' },
   { path: '/domains', label: 'Domains' },
   { path: '/arena-admin', label: 'Arena' },
 ]
@@ -65,6 +67,7 @@ export const router = createBrowserRouter([
       { path: '/', element: <Live /> },
       { path: '/autopilot', element: <Autopilot /> },
       { path: '/proof', element: <Proof /> },
+      { path: '/results', element: <Results /> },
       { path: '/domains', element: <Domains /> },
       { path: '/arena-admin', element: <ArenaAdmin /> },
     ],

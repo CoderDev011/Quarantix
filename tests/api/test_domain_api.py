@@ -71,3 +71,11 @@ async def test_the_proof_wall_endpoint(client: httpx.AsyncClient) -> None:
     assert report["total"] >= 7 and report["failed"] == 0
     rw01 = next(s for s in report["scenarios"] if s["scenario_id"] == "RW-01")
     assert rw01["modes"]["guard"]["outcome"] == "succeeded"  # the honest day-one gap
+
+
+async def test_the_results_endpoint_needs_admin(client: httpx.AsyncClient) -> None:
+    assert (await client.get("/v1/redteam/latest")).status_code == 401
+    response = await client.get("/v1/redteam/latest", headers=ADMIN)
+    assert response.status_code in (200, 404)
+    if response.status_code == 200:
+        assert "metrics" in response.json() and "cases" not in response.json()

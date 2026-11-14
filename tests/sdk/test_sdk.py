@@ -288,3 +288,14 @@ async def test_an_ask_goes_to_a_person_through_the_console(plane: Any, tmp_path:
             sent = await tools["send_webhook"](url="https://partner.example/n", body="hi")
         await helper
     assert sent == "sent" and len(world.ledgers["outbox"]) == 1
+
+
+async def test_start_with_a_cached_bundle_is_online_at_once(plane: Any, tmp_path: Path) -> None:
+    """Found on a real run: the first sync was a 25 s long-poll, so asks became blocks."""
+    _, switch, _ = plane
+    async with sdk_for(switch, tmp_path, support_world()) as qx:
+        await qx.sync_now()
+    started = time.perf_counter()
+    async with sdk_for(switch, tmp_path, support_world()) as qx:
+        assert qx.online, "the SDK must be online as soon as start() returns"
+    assert time.perf_counter() - started < 5

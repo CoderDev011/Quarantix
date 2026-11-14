@@ -259,3 +259,21 @@ def proof_router(require_admin: Callable[..., None], root: Path) -> APIRouter:
         return await run_proof_suite(scenarios, domains, traces, reader=reader)
 
     return router
+
+
+def results_router(require_admin: Callable[..., None], root: Path) -> APIRouter:
+    """GET /v1/redteam/latest: the last report written by scripts/redteam.py (contracts 16)."""
+    import json as _json
+
+    router = APIRouter(prefix="/v1/redteam", dependencies=[Depends(require_admin)])
+
+    @router.get("/latest")
+    async def latest() -> JSONResponse:
+        path = root / "redteam" / "results.json"
+        if not path.is_file():
+            return _error(AutopilotError(404, "no_report", "run scripts/redteam.py first"))
+        report = _json.loads(path.read_text(encoding="utf-8"))
+        report.pop("cases", None)  # per-case rows are large; the page shows the metrics
+        return JSONResponse(report)
+
+    return router

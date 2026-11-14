@@ -94,6 +94,13 @@ def tokens(value: Any) -> set[str]:
     if "@" in text:
         out.update(_EMAIL.findall(text))
     for raw in set(_NUMBER.findall(text)):
+        if len(raw) < 3:
+            continue  # fewer than 3 characters can never have 3 significant digits
+        if raw.isdigit():  # fast path: a plain whole number
+            number = raw.lstrip("0")
+            if len(number) >= 3:
+                out.add(number)
+            continue
         number = _canonical_number(raw)
         if len(number) >= 3 and _significant(number) >= 3:
             out.add(number)
