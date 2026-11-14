@@ -2,8 +2,8 @@
 
 import pytest
 
-from agentwall.core.labels import Confidentiality, trusted, untrusted
-from agentwall.core.redact import MASK, preview, scrub
+from quarantix.core.labels import Confidentiality, trusted, untrusted
+from quarantix.core.redact import MASK, preview, scrub
 
 INTERNAL = trusted("user")
 

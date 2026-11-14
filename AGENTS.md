@@ -64,7 +64,7 @@ Every change must meet all of these. Reviewers reject changes that don't.
 
 ## 5. Non-negotiable project rules
 
-1. **The core never names a domain.** The folders `agentwall/core`, `ai`, `engine`, `guard`, `sdk`, `autopilot` must not contain the whole words ticket(s), refund(s), customer(s), invoice(s), repo(s), deploy(s), salary, payroll, order_id. An architecture test enforces this. Domains live in `domains/`, `redteam/` and `policies/` only.
+1. **The core never names a domain.** The folders `quarantix/core`, `ai`, `engine`, `guard`, `sdk`, `autopilot` must not contain the whole words ticket(s), refund(s), customer(s), invoice(s), repo(s), deploy(s), salary, payroll, order_id. An architecture test enforces this. Domains live in `domains/`, `redteam/` and `policies/` only.
 2. **Layering:**
    - Imports point downward only: core ← engine ← guard ← sdk.
    - `ai` depends on core only.

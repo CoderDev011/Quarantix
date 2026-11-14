@@ -4,8 +4,8 @@ import time
 
 import pytest
 
-from agentwall.core.labels import trusted, untrusted
-from agentwall.core.provenance import ProvenanceGraph
+from quarantix.core.labels import trusted, untrusted
+from quarantix.core.provenance import ProvenanceGraph
 
 
 def _ids(explanation: dict) -> set[str]:

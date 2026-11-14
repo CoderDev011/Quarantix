@@ -23,6 +23,14 @@ Starting balance: _not yet recorded; read it from the Google console before spik
 
 ---
 
+## Checkpoint IC1 (hour 6): engine proves the model, no LLM (2026-11-14)
+**Run:** `uv run python scripts/demo_core.py` inside WSL on the dev laptop (8 GB RAM, Intel Iris).
+**Result: pass.** Exit code 0. The safe plan's refund of ORD-1001 (120.0) was **ALLOWED** by `support/refunds-under-limit`. The naive plan's refund of 4999.0 was **BLOCKED** by `core/C1-untrusted-critical-arg`, with path `order_number <- extract s2.order_number <- get_ticket T-102.text (untrusted)`.
+**Suite at the same commit:** `bash scripts/check.sh` exit 0, 190 tests. Budgets measured: evaluate p99 114 µs (≤ 1 ms), gate overhead p99 120 µs (≤ 2 ms), safe plan over 8 records 9.7 ms (≤ 50 ms), compile 100 rules 5.9 ms (≤ 20 ms).
+**Not checked:** the demo laptop (teammate's 16 GB machine); anything involving a real LLM.
+
+---
+
 ## Spike S0: toolchain on the dev machine (2026-11-14)
 **Why:** Phase 0 needs uv, pnpm, Docker and Node inside WSL.
 **Run:** `bash scripts/check_tools.sh` inside WSL (Ubuntu). The machine is Windows 11 + WSL2.

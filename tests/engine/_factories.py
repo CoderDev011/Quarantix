@@ -2,10 +2,10 @@
 
 from typing import Any
 
-from agentwall.core.contracts import ArgValue, Evidence, ToolCallRequest
-from agentwall.core.labels import BOTTOM, Confidentiality, Label, trusted, untrusted
-from agentwall.core.registry import ChannelAllowlist, ToolSpec
-from agentwall.engine.policy import AgentPolicy, PolicyBundle, compile_pack
+from quarantix.core.contracts import ArgValue, Evidence, ToolCallRequest
+from quarantix.core.labels import BOTTOM, Confidentiality, Label, trusted, untrusted
+from quarantix.core.registry import ChannelAllowlist, ToolSpec
+from quarantix.engine.policy import AgentPolicy, PolicyBundle, compile_pack
 
 AGENT = "agent-a"
 

@@ -13,7 +13,7 @@ import json
 import re
 from typing import Any
 
-from agentwall.core.labels import Confidentiality, Label
+from quarantix.core.labels import Confidentiality, Label
 
 MASK = "«masked»"
 PREVIEW_LIMIT = 40

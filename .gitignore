@@ -39,3 +39,6 @@ Thumbs.db
 # Claude Code local state
 .claude/worktrees/
 *.kate-swp
+
+# Tool caches
+.import_linter_cache/

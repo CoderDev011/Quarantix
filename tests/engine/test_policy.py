@@ -1,12 +1,14 @@
 """F04 core rules and the combine order. Spec: docs/features/F04-policy-engine.md."""
 
+import gc
 import time
 
 import pytest
 
-from agentwall.core.labels import Confidentiality, untrusted
-from agentwall.core.registry import Registry
-from agentwall.engine.policy import evaluate
+from quarantix.core.contracts import ArgValue
+from quarantix.core.labels import Confidentiality, trusted, untrusted
+from quarantix.core.registry import Registry
+from quarantix.engine.policy import evaluate
 from tests.engine._factories import (
     PAY_PACK,
     arg,
@@ -210,6 +212,24 @@ def test_reason_names_the_argument_and_its_source() -> None:
     assert "R-102" in decision.reason
 
 
+def test_one_c1_block_names_every_attacker_written_argument_and_only_outside_sources() -> None:
+    mixed = untrusted("tool:read#R-102").join(trusted("planner")).join(trusted("system"))
+    decision = evaluate(
+        request(
+            "pay",
+            account=ArgValue("ACC-9", mixed, "exact"),
+            amount=ArgValue(4999, mixed, "exact"),
+        ),
+        pay_spec(),
+        policy(),
+    )
+    assert decision.matched.count("core/C1-untrusted-critical-arg") == 1
+    assert decision.reason == (
+        "The account and amount were written by read record R-102 (untrusted), "
+        "and pay uses them to decide what happens."
+    )
+
+
 def test_matched_lists_every_rule_that_fired() -> None:
     decision = evaluate(
         request("pay", context=TAINTED, account=arg("ACC-1", bad=True), amount=arg(120, bad=True)),
@@ -283,6 +303,7 @@ def test_evaluation_p99_is_under_one_millisecond_with_100_rules() -> None:
         c=arg(3),
     )
     spec = pay_spec()
+    gc.collect()  # don't charge a pause caused by earlier tests to this measurement
     timings = []
     for _ in range(2000):
         start = time.perf_counter()

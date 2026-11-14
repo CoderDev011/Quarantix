@@ -7,7 +7,7 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from agentwall.core.labels import (
+from quarantix.core.labels import (
     BOTTOM,
     Confidentiality,
     Integrity,

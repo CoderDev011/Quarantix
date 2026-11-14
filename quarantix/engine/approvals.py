@@ -16,7 +16,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Literal, Protocol
 
-from agentwall.core.contracts import Decision, ToolCallRequest
+from quarantix.core.contracts import Decision, ToolCallRequest
 
 Verdict = Literal["approve", "deny"]
 Scope = Literal["once", "run"]

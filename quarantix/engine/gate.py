@@ -19,11 +19,11 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import Any, Protocol
 
-from agentwall.core.contracts import Decision, Event, EventKind, Outcome, ToolCallRequest
-from agentwall.core.redact import preview, scrub
-from agentwall.core.registry import RecordLookup, Registry
-from agentwall.engine.approvals import ApprovalBroker, ApprovalResult
-from agentwall.engine.policy import AgentPolicy, PolicyBundle, evaluate
+from quarantix.core.contracts import Decision, Event, EventKind, Mode, Outcome, ToolCallRequest
+from quarantix.core.redact import preview, scrub
+from quarantix.core.registry import RecordLookup, Registry
+from quarantix.engine.approvals import ApprovalBroker, ApprovalResult
+from quarantix.engine.policy import AgentPolicy, PolicyBundle, evaluate
 
 OFFLINE_RULE = "runtime/offline-no-approver"
 DENIED_RULE = "runtime/approval-denied"
@@ -181,6 +181,27 @@ class GateRuntime:
         if result.status == "denied":
             return _blocked_from(decision, DENIED_RULE, "A person denied this call")
         return _blocked_from(decision, EXPIRED_RULE, "Nobody approved this call in time")
+
+    def emit(
+        self,
+        kind: EventKind,
+        *,
+        run_id: str,
+        agent: str,
+        mode: Mode,
+        tool: str | None = None,
+        data: Mapping[str, Any] | None = None,
+    ) -> None:
+        """Emit a run-level event (e.g. `limit`, `answer.link_stripped`). Never raises."""
+        try:
+            self.events.emit(
+                Event(
+                    event_id=self._new_id(), run_id=run_id, agent=agent, mode=mode,
+                    kind=kind, time=self._clock(), tool=tool, data=data or {},
+                )
+            )  # fmt: skip
+        except Exception:
+            self.dropped_events += 1
 
     # ---------------------------------------------------------------- helpers
 

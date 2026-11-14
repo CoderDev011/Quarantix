@@ -21,7 +21,7 @@ import yaml
 from yaml.constructor import SafeConstructor
 from yaml.nodes import MappingNode, Node, ScalarNode, SequenceNode
 
-from agentwall.core.contracts import (
+from quarantix.core.contracts import (
     DECISION_KINDS,
     EVIDENCE,
     SEVERITY,
@@ -30,8 +30,8 @@ from agentwall.core.contracts import (
     DecisionKind,
     ToolCallRequest,
 )
-from agentwall.core.labels import Confidentiality, Integrity, Label
-from agentwall.core.registry import AUDIENCES, Audience, RecordLookup, ToolSpec, resolve_audience
+from quarantix.core.labels import Confidentiality, Integrity, Label, join_all
+from quarantix.core.registry import AUDIENCES, Audience, RecordLookup, ToolSpec, resolve_audience
 
 C1 = "core/C1-untrusted-critical-arg"
 C2 = "core/C2-confidentiality-exceeds-audience"
@@ -620,21 +620,35 @@ def evaluate(
 def _core_rules(request: ToolCallRequest, spec: ToolSpec, audience: Audience) -> list[_Fired]:
     tool = request.tool
     fired: list[_Fired] = []
+    proven = [  # critical arguments whose attacker origin is proven: one C1 block names them all
+        name
+        for name, arg in request.args.items()
+        if arg.label.integrity is Integrity.UNTRUSTED
+        and spec.is_critical(name)
+        and arg.evidence in ("exact", "traced")
+    ]
+    if proven:
+        origin = _describe_sources(join_all(request.args[name].label for name in proven))
+        subject, verb, pronoun = (
+            (f"The {proven[0]}", "was", "it") if len(proven) == 1
+            else (f"The {_and_list(proven)}", "were", "them")
+        )  # fmt: skip
+        fired.append(
+            _Fired(
+                "block",
+                C1,
+                proven[0],
+                f"{subject} {verb} written by {origin} (untrusted), "
+                f"and {tool} uses {pronoun} to decide what happens.",
+            )
+        )
     for name, arg in request.args.items():
         if arg.label.integrity is not Integrity.UNTRUSTED or not spec.is_critical(name):
             continue
         source = _describe_sources(arg.label)
         if arg.evidence in ("exact", "traced"):
-            fired.append(
-                _Fired(
-                    "block",
-                    C1,
-                    name,
-                    f"The {name} was written by {source} (untrusted), "
-                    f"and {tool} uses it to decide what happens.",
-                )
-            )
-        elif arg.evidence == "ambiguous":
+            continue  # covered by the single C1 block above
+        if arg.evidence == "ambiguous":
             fired.append(
                 _Fired(
                     "ask",
@@ -688,10 +702,19 @@ _SOURCE_NAMES = {"user": "the user", "planner": "the plan", "system": "our own s
 
 
 def _describe_sources(label: Label) -> str:
-    names = [_describe_source(source) for source in sorted(label.sources)]
+    """Name where a value came from. Outside origins (tool records, MCP tools) are named
+    first and alone when present: the plan, the user and our own systems are never the
+    attacker, and listing them blurs which source wrote the value."""
+    outside = sorted(s for s in label.sources if s not in _SOURCE_NAMES)
+    chosen = outside or sorted(label.sources)
+    names = [_describe_source(source) for source in chosen]
     if not names:
         return "an unknown source"
-    return ", ".join(names[:3]) + (" and others" if len(names) > 3 else "")
+    return _and_list(names[:3]) + (" and others" if len(names) > 3 else "")
+
+
+def _and_list(items: list[str]) -> str:
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
 
 
 def _describe_source(source: str) -> str:

@@ -1,17 +1,18 @@
 """F05 Gate and Gate runtime. Spec: docs/features/F05-gate.md."""
 
 import asyncio
+import gc
 import threading
 import time
 
 import pytest
 
-from agentwall.core.contracts import Decision, Event, ToolCallRequest
-from agentwall.core.labels import Confidentiality, untrusted
-from agentwall.core.registry import Registry
-from agentwall.engine.approvals import ApprovalNotPending, InProcessApprovalBroker
-from agentwall.engine.gate import Gate, GateRuntime, ToolBlocked
-from agentwall.engine.policy import PolicyBundle, compile_pack
+from quarantix.core.contracts import Decision, Event, ToolCallRequest
+from quarantix.core.labels import Confidentiality, untrusted
+from quarantix.core.registry import Registry
+from quarantix.engine.approvals import ApprovalNotPending, InProcessApprovalBroker
+from quarantix.engine.gate import Gate, GateRuntime, ToolBlocked
+from quarantix.engine.policy import PolicyBundle, compile_pack
 from tests.engine._factories import PAY_PACK, arg, pay_spec, read_spec, request
 
 TAINTED = untrusted("tool:read#R-102")
@@ -292,6 +293,7 @@ async def test_runtime_overhead_p99_is_under_two_milliseconds() -> None:
     async def noop() -> None:
         return None
 
+    gc.collect()  # don't charge a pause caused by earlier tests to this measurement
     timings = []
     for _ in range(2000):
         start = time.perf_counter()

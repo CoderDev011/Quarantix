@@ -4,8 +4,8 @@ from datetime import UTC, datetime
 
 import pytest
 
-from agentwall.core.contracts import ArgValue, Decision, Event, ToolCallRequest
-from agentwall.core.labels import Confidentiality, trusted, untrusted
+from quarantix.core.contracts import ArgValue, Decision, Event, ToolCallRequest
+from quarantix.core.labels import Confidentiality, trusted, untrusted
 
 
 def _request() -> ToolCallRequest:

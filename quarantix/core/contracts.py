@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Literal
 
-from agentwall.core.labels import BOTTOM, Label
+from quarantix.core.labels import BOTTOM, Label
 
 SCHEMA_VERSION = 1
 

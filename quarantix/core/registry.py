@@ -20,7 +20,7 @@ from urllib.parse import urlsplit
 
 import pydantic
 
-from agentwall.core.labels import Confidentiality, Integrity, Label
+from quarantix.core.labels import Confidentiality, Integrity, Label
 
 Kind = Literal["source", "sink", "both"]
 Risk = Literal["low", "medium", "high"]

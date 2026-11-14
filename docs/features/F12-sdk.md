@@ -4,7 +4,7 @@
 **Priority:** MUST · **Lane:** Platform · **Checkpoint:** IC2 · **Depends on:** F02, F04, F05, F11, F13 (API shapes)
 
 ## Provides
-- **Init:** API key, agent name, control-plane URL, cache folder (default `~/.agentwall/<agent>/`), optional registry or domain pack.
+- **Init:** API key, agent name, control-plane URL, cache folder (default `~/.quarantix/<agent>/`), optional registry or domain pack.
 - **Guard wrap:** a list of tool functions → wrapped functions **with identical signatures**. Each call goes through the current guard session.
 - **Session:** a context block creating a guard session, optionally with the user's message. Tracked per task or thread, so concurrent conversations never mix.
 - **HTTP event sink** and **HTTP approval broker**: implementations of F05's interfaces.

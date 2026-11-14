@@ -68,7 +68,7 @@ def test_scanner_ignores_ordinary_words(line: str) -> None:
 def test_generic_packages_never_name_a_domain() -> None:
     hits = []
     for package in GENERIC_PACKAGES:
-        for path in sorted((ROOT / "agentwall" / package).rglob("*.py")):
+        for path in sorted((ROOT / "quarantix" / package).rglob("*.py")):
             for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
                 if domain_word_hits(line):
                     hits.append(f"{path.relative_to(ROOT)}:{number}: {line.strip()}")

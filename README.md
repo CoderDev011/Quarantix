@@ -27,7 +27,7 @@ A firewall for AI agents. It tracks where every value came from and how sensitiv
 
 | Path | Contents |
 |---|---|
-| `agentwall/` | The product. Generic packages never name a domain |
+| `quarantix/` | The product. Generic packages never name a domain |
 | `domains/` | Domain packs (YAML + JSON, no Python) |
 | `redteam/templates/` | Generic attack templates |
 | `proof/scenarios/` | Real-World Proof Suite scenario files |

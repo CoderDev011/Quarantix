@@ -13,7 +13,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
-from agentwall.core.labels import Label
+from quarantix.core.labels import Label
 
 NODE_KINDS = frozenset({"user", "planner", "tool", "extract", "format", "arg", "sink"})
 DEFAULT_LIMIT = 50

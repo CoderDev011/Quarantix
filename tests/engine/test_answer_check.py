@@ -1,7 +1,7 @@
 """F04 rule C4: links in final answers. Spec: docs/features/F04-policy-engine.md."""
 
-from agentwall.core.labels import Confidentiality, trusted
-from agentwall.engine.policy import check_answer
+from quarantix.core.labels import Confidentiality, trusted
+from quarantix.engine.policy import check_answer
 
 PRIVATE = trusted("system", Confidentiality.PRIVATE)
 PUBLIC = trusted("system", Confidentiality.PUBLIC)

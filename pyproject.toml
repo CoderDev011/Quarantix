@@ -1,5 +1,5 @@
 [project]
-name = "agentwall"
+name = "quarantix"
 version = "0.1.0"
 description = "A firewall for AI agents: label-based enforcement that learns from attacks and proves every rule."
 readme = "README.md"
@@ -34,7 +34,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["agentwall"]
+packages = ["quarantix"]
 
 # ---------------------------------------------------------------- quality
 [tool.ruff]
@@ -47,10 +47,10 @@ select = ["E", "F", "W", "I", "B", "UP", "ASYNC", "SIM", "RUF", "S"]
 ignore = ["S101"]  # assert is fine in tests
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S"]
+"tests/**" = ["S", "E501"]  # plan fixtures read best one step per line
 
 [tool.pyright]
-include = ["agentwall", "tests"]
+include = ["quarantix", "tests"]
 pythonVersion = "3.12"
 typeCheckingMode = "standard"
 
@@ -66,64 +66,64 @@ addopts = "-m 'not live'"
 
 # ---------------------------------------------------------------- layering (AGENTS.md section 5.2)
 [tool.importlinter]
-root_package = "agentwall"
+root_package = "quarantix"
 
 [[tool.importlinter.contracts]]
 name = "Layers: api > sdk > guard > engine > core"
 type = "layers"
 layers = [
-    "agentwall.api",
-    "agentwall.sdk",
-    "agentwall.guard",
-    "agentwall.engine",
-    "agentwall.core",
+    "quarantix.api",
+    "quarantix.sdk",
+    "quarantix.guard",
+    "quarantix.engine",
+    "quarantix.core",
 ]
 
 [[tool.importlinter.contracts]]
 name = "Core and engine never depend on ai, autopilot or packs"
 type = "forbidden"
-source_modules = ["agentwall.core", "agentwall.engine"]
-forbidden_modules = ["agentwall.ai", "agentwall.autopilot", "agentwall.packs"]
+source_modules = ["quarantix.core", "quarantix.engine"]
+forbidden_modules = ["quarantix.ai", "quarantix.autopilot", "quarantix.packs"]
 
 [[tool.importlinter.contracts]]
 name = "AI depends only on core"
 type = "forbidden"
-source_modules = ["agentwall.ai"]
+source_modules = ["quarantix.ai"]
 forbidden_modules = [
-    "agentwall.engine",
-    "agentwall.guard",
-    "agentwall.sdk",
-    "agentwall.api",
-    "agentwall.autopilot",
-    "agentwall.packs",
+    "quarantix.engine",
+    "quarantix.guard",
+    "quarantix.sdk",
+    "quarantix.api",
+    "quarantix.autopilot",
+    "quarantix.packs",
 ]
 
 [[tool.importlinter.contracts]]
 name = "The quarantined reader never touches tools or enforcement"
 type = "forbidden"
-source_modules = ["agentwall.ai.reader"]
-forbidden_modules = ["agentwall.core.registry", "agentwall.engine", "agentwall.guard"]
+source_modules = ["quarantix.ai.reader"]
+forbidden_modules = ["quarantix.core.registry", "quarantix.engine", "quarantix.guard"]
 
 [[tool.importlinter.contracts]]
 name = "Autopilot uses only core, engine and ai"
 type = "forbidden"
-source_modules = ["agentwall.autopilot"]
-forbidden_modules = ["agentwall.guard", "agentwall.sdk", "agentwall.api", "agentwall.packs"]
+source_modules = ["quarantix.autopilot"]
+forbidden_modules = ["quarantix.guard", "quarantix.sdk", "quarantix.api", "quarantix.packs"]
 
 [[tool.importlinter.contracts]]
 name = "Domain-pack loader uses only core and engine"
 type = "forbidden"
-source_modules = ["agentwall.packs"]
+source_modules = ["quarantix.packs"]
 forbidden_modules = [
-    "agentwall.ai",
-    "agentwall.guard",
-    "agentwall.sdk",
-    "agentwall.api",
-    "agentwall.autopilot",
+    "quarantix.ai",
+    "quarantix.guard",
+    "quarantix.sdk",
+    "quarantix.api",
+    "quarantix.autopilot",
 ]
 
 [[tool.importlinter.contracts]]
 name = "Nothing imports the API"
 type = "forbidden"
-source_modules = ["agentwall.ai", "agentwall.autopilot", "agentwall.packs"]
-forbidden_modules = ["agentwall.api"]
+source_modules = ["quarantix.ai", "quarantix.autopilot", "quarantix.packs"]
+forbidden_modules = ["quarantix.api"]

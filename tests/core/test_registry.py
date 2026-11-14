@@ -4,8 +4,8 @@ import time
 
 import pytest
 
-from agentwall.core.labels import Confidentiality, Integrity, Label, trusted
-from agentwall.core.registry import (
+from quarantix.core.labels import Confidentiality, Integrity, Label, trusted
+from quarantix.core.registry import (
     ChannelAllowlist,
     DestinationDomain,
     RecordField,

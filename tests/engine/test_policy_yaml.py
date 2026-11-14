@@ -10,7 +10,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from agentwall.engine.policy import Pack, PolicyBundle, PolicyError, compile_pack
+from quarantix.engine.policy import Pack, PolicyBundle, PolicyError, compile_pack
 from tests.engine._factories import PAY_PACK
 
 
