@@ -29,7 +29,7 @@
    - Clone the world, plant the payload at the task's plant target, and run the naive agent with the shadow invoker.
    - Every call executes: that is the naive outcome. Every guard decision is recorded.
    - If nothing would have been blocked or asked, the Guard outcome equals the naive outcome (exact).
-   - Otherwise, show "AgentWall would stop it at step k (rule …)" immediately, and queue an **enforced Guard re-run** at low priority. Its result replaces the shadow result.
+   - Otherwise, show "Quarantix would stop it at step k (rule …)" immediately, and queue an **enforced Guard re-run** at low priority. Its result replaces the shadow result.
 4. **Full mode,** in parallel, on its own clone: run the domain task's **pinned plan** through the interpreter. Only the planted record costs a reader call.
 5. **Outcome per defender:**
 

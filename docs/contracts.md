@@ -1,6 +1,6 @@
-# AgentWall shared contracts (BINDING)
+# Quarantix shared contracts (BINDING)
 
-These are the formats that every part of AgentWall exchanges. Names, fields, meanings, enums and versions here are binding. Change them only with all four teammates' agreement and a schema version bump; regenerate the TypeScript types afterwards.
+These are the formats that every part of Quarantix exchanges. Names, fields, meanings, enums and versions here are binding. Change them only with all four teammates' agreement and a schema version bump; regenerate the TypeScript types afterwards.
 
 How to implement them is free. Typical choices are Pydantic models with extra fields forbidden, and frozen, slotted dataclasses for labels.
 

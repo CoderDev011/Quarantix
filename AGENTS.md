@@ -1,4 +1,4 @@
-# AGENTS.md: rules for every coding agent and teammate on AgentWall
+# AGENTS.md: rules for every coding agent and teammate on Quarantix
 
 This file is canonical. `CLAUDE.md` and `GEMINI.md` only point here. Read this whole file before your first change, then read the files below in this order and **nothing else unless your brief lists it**.
 
@@ -16,9 +16,9 @@ This file is canonical. `CLAUDE.md` and `GEMINI.md` only point here. Read this w
 7. **Features without a brief yet** (console, red-team runner, Real-World Proof Suite, packaging, demo): use the matching sections of `plan.md` Part 1 §6 and Part 2, plus `docs/contracts.md` §11, §12 and §16.
 8. `plan.v1.md`, `plan.v2.md` and `plan.v3.md` are history. Don't read them; `plan.md` contains what's still relevant.
 
-## 2. What AgentWall is (one paragraph)
+## 2. What Quarantix is (one paragraph)
 
-AgentWall is a firewall for AI agents. It tracks **where every value came from** (trusted user, or untrusted data such as a ticket, log, email, web page or MCP tool description) and **how sensitive it is**. It then checks each tool call against deterministic rules before the action runs. LLMs only plan and extract; **code decides**. It protects agents built with our planner (full mode) and agents we never wrote (guard mode: SDK wrap or MCP gateway). It learns from attacks (Autopilot), proves every new rule against the full attack and benign suites before it can ship, and works in any domain. Domains are configuration packs, never code.
+Quarantix is a firewall for AI agents. It tracks **where every value came from** (trusted user, or untrusted data such as a ticket, log, email, web page or MCP tool description) and **how sensitive it is**. It then checks each tool call against deterministic rules before the action runs. LLMs only plan and extract; **code decides**. It protects agents built with our planner (full mode) and agents we never wrote (guard mode: SDK wrap or MCP gateway). It learns from attacks (Autopilot), proves every new rule against the full attack and benign suites before it can ship, and works in any domain. Domains are configuration packs, never code.
 
 ## 3. The plan is a brief, not code
 
