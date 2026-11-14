@@ -1,5 +1,7 @@
 """F01 provenance graph. Spec: docs/features/F01-labels-provenance.md, contracts section 6."""
 
+import gc
+import statistics
 import time
 
 import pytest
@@ -111,8 +113,14 @@ def test_explaining_a_5000_node_graph_is_under_2ms() -> None:
         parents = previous[-2:]
         previous.append(graph.add("format", f"n{i}", untrusted("tool:list#1"), parents=parents))
 
-    start = time.perf_counter()
-    graph.explain(previous[-1])
-    elapsed = time.perf_counter() - start
-    print(f"\nexplain over 5000 nodes: {elapsed * 1e3:.2f} ms")
-    assert elapsed < 2e-3
+    gc.collect()  # don't charge a pause caused by earlier tests to this measurement
+    timings = []
+    for _ in range(5):
+        start = time.perf_counter()
+        graph.explain(previous[-1])
+        timings.append(time.perf_counter() - start)
+    median = statistics.median(timings)
+    print(
+        f"\nexplain over 5000 nodes: median {median * 1e3:.2f} ms (max {max(timings) * 1e3:.2f} ms)"
+    )
+    assert median < 2e-3

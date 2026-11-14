@@ -9,7 +9,7 @@ dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
     "pydantic>=2.7",
-    "sqlalchemy>=2.0",
+    "sqlalchemy[asyncio]>=2.0",
     "aiosqlite>=0.20",
     "sse-starlette>=2.1",
     "httpx>=0.27",
@@ -47,7 +47,7 @@ select = ["E", "F", "W", "I", "B", "UP", "ASYNC", "SIM", "RUF", "S"]
 ignore = ["S101"]  # assert is fine in tests
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S", "E501"]  # plan fixtures read best one step per line
+"tests/**" = ["S", "E501", "ASYNC240"]  # plan fixtures read best one step per line; tests may do blocking file I/O
 
 [tool.pyright]
 include = ["quarantix", "tests"]

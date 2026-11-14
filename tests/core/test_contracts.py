@@ -114,3 +114,54 @@ def test_invalid_event_kind_is_rejected() -> None:
 def test_invalid_decision_kind_is_rejected() -> None:
     with pytest.raises(ValueError, match="kind"):
         Decision(kind="maybe", rule="r", reason="x", policy_version="v")  # type: ignore[arg-type]
+
+
+def test_events_and_decisions_round_trip_through_the_wire_format() -> None:
+    decision = Decision(
+        kind="ask",
+        rule="core/C3-untrusted-context-high-risk",
+        reason="A person should approve this.",
+        policy_version="abc123def456",
+        matched=("core/C3-untrusted-context-high-risk",),
+        provenance={"nodes": [], "edges": []},
+        enforced=False,
+    )
+    event = Event(
+        event_id="e1",
+        run_id="r1",
+        agent="agent-a",
+        mode="guard",
+        kind="tool.call",
+        time=datetime(2026, 11, 14, 12, 0, tzinfo=UTC),
+        tool="pay",
+        args={"amount": {"preview": "10", "redacted": False}},
+        context=untrusted("tool:list#T-2"),
+        decision=decision,
+        outcome="executed",
+        latency_ms=1.5,
+        data={"n": 1},
+        seq=7,
+    )
+    back = Event.from_wire(event.to_wire())
+    assert back == event
+    assert back.decision is not None and back.decision.provenance == {"nodes": [], "edges": []}
+    assert Decision.from_wire(decision.to_wire()) == decision
+
+
+@pytest.mark.parametrize(
+    "broken",
+    [
+        {"kind": "party"},
+        {"time": "not a time"},
+        {"time": "2026-11-14T12:00:00"},  # no timezone
+        {"schema_version": 2},
+        {"event_id": None},
+    ],
+)
+def test_malformed_wire_events_are_rejected(broken: dict) -> None:
+    wire = {
+        "schema_version": 1, "event_id": "e1", "run_id": "r1", "agent": "a", "mode": "guard",
+        "kind": "tool.call", "time": "2026-11-14T12:00:00+00:00", **broken,
+    }  # fmt: skip
+    with pytest.raises(ValueError):
+        Event.from_wire(wire)

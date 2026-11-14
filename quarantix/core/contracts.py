@@ -156,6 +156,28 @@ class Decision:
             "enforced": self.enforced,
         }
 
+    @classmethod
+    def from_wire(cls, wire: Mapping[str, Any]) -> Decision:
+        try:
+            return cls(
+                kind=wire["kind"],
+                rule=_text(wire["rule"], "rule"),
+                reason=_text(wire["reason"], "reason"),
+                policy_version=_text(wire["policy_version"], "policy_version"),
+                offending_arg=wire.get("offending_arg"),
+                matched=tuple(wire.get("matched") or ()),
+                provenance=wire.get("provenance"),
+                enforced=bool(wire.get("enforced", True)),
+            )
+        except (KeyError, TypeError) as exc:
+            raise ValueError(f"invalid decision on the wire: {exc}") from None
+
+
+def _text(value: Any, what: str) -> str:
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"{what} must be non-empty text")
+    return value
+
 
 @dataclass(frozen=True, slots=True)
 class Event:
@@ -205,3 +227,39 @@ class Event:
             "latency_ms": self.latency_ms,
             "data": dict(self.data),
         }
+
+    @classmethod
+    def from_wire(cls, wire: Mapping[str, Any]) -> Event:
+        """Parse and validate an event from JSON (e.g. an SDK upload). Raises ValueError."""
+        if not isinstance(wire, Mapping):
+            raise ValueError("an event must be a JSON object")
+        if wire.get("schema_version") != SCHEMA_VERSION:
+            raise ValueError(f"unsupported schema_version {wire.get('schema_version')!r}")
+        try:
+            time = datetime.fromisoformat(_text(wire["time"], "time"))
+        except KeyError:
+            raise ValueError("time is required") from None
+        if time.tzinfo is None:
+            raise ValueError("time must include a timezone")
+        try:
+            args = wire.get("args")
+            context = wire.get("context")
+            decision = wire.get("decision")
+            return cls(
+                event_id=_text(wire["event_id"], "event_id"),
+                run_id=_text(wire["run_id"], "run_id"),
+                agent=_text(wire["agent"], "agent"),
+                mode=wire["mode"],
+                kind=wire["kind"],
+                time=time,
+                tool=wire.get("tool"),
+                args=None if args is None else {str(k): dict(v) for k, v in args.items()},
+                context=None if context is None else Label.from_wire(context),
+                decision=None if decision is None else Decision.from_wire(decision),
+                outcome=wire.get("outcome"),
+                latency_ms=wire.get("latency_ms"),
+                data=dict(wire.get("data") or {}),
+                seq=wire.get("seq"),
+            )
+        except (KeyError, TypeError, AttributeError) as exc:
+            raise ValueError(f"invalid event on the wire: {exc}") from None
