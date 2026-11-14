@@ -1,9 +1,405 @@
 @import 'tailwindcss';
 
+/* ── Design tokens ─────────────────────────────────────────────────────────────
+   Soft-canvas SaaS look: cool gray canvas, white rounded cards, ink-black pills,
+   colored icon "dots". The arena big screen is the one dark surface (F16). */
+@theme {
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --color-canvas: #eceef3;
+  --color-surface: #ffffff;
+  --color-surface-2: #f4f5f8;
+  --color-surface-3: #e9ebf1;
+  --color-ink: #0c0d12;
+  --color-ink-2: #4b4f5e;
+  --color-ink-3: #8a8fa2;
+  --color-line: #e3e5ec;
+
+  --color-brand: #6d5dfc;
+  --color-brand-soft: #ece9ff;
+  --color-tangerine: #ff7a1a;
+  --color-sun: #f7d23e;
+  --color-lilac: #c9b8ff;
+  --color-sky: #59b4ff;
+  --color-mint: #22c58b;
+  --color-rose: #ff5a64;
+  --color-amber: #f5a524;
+
+  --radius-4xl: 2rem;
+  --radius-5xl: 2.5rem;
+
+  --shadow-soft: 0 1px 2px rgb(16 18 27 / 0.04), 0 8px 24px -12px rgb(16 18 27 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(16 18 27 / 0.04), 0 24px 48px -20px rgb(16 18 27 / 0.25);
+}
+
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  @apply bg-slate-950 text-slate-100 antialiased;
+  @apply bg-canvas font-sans text-ink antialiased;
+  font-feature-settings: 'ss01', 'cv11';
+}
+
+::selection {
+  background: rgb(109 93 252 / 0.22);
+}
+
+/* ── Building blocks ───────────────────────────────────────────────────────── */
+@layer components {
+  .card {
+    @apply rounded-4xl bg-surface shadow-soft;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-medium text-ink-2;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition
+      duration-200 select-none active:scale-[0.97] disabled:pointer-events-none disabled:opacity-35;
+  }
+  .btn-ink {
+    @apply bg-ink text-white shadow-[0_8px_20px_-8px_rgb(12_13_18/0.6)] hover:bg-black hover:shadow-[0_12px_28px_-10px_rgb(12_13_18/0.7)];
+  }
+  .btn-ghost {
+    @apply bg-surface text-ink ring-1 ring-line hover:bg-surface-2;
+  }
+  .btn-soft {
+    @apply bg-surface-2 text-ink hover:bg-surface-3;
+  }
+  .btn-danger {
+    @apply bg-rose text-white hover:brightness-95;
+  }
+  .icon-btn {
+    @apply inline-flex h-11 w-11 items-center justify-center rounded-full bg-surface text-ink shadow-soft transition
+      hover:-translate-y-0.5 hover:shadow-lift active:scale-95;
+  }
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-ink-3;
+  }
+  .field {
+    @apply w-full rounded-2xl border border-line bg-surface px-4 py-3 text-sm text-ink outline-none transition
+      placeholder:text-ink-3 focus:border-brand focus:ring-4 focus:ring-brand/15;
+  }
+}
+
+/* ── Motion ────────────────────────────────────────────────────────────────── */
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes spin-rev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes ring-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes dash {
+  to {
+    stroke-dashoffset: -200;
+  }
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes aurora {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(6%, -4%) scale(1.08);
+  }
+  66% {
+    transform: translate(-5%, 5%) scale(0.95);
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-6px, 2px);
+  }
+  40% {
+    transform: translate(5px, -3px);
+  }
+  60% {
+    transform: translate(-4px, -2px);
+  }
+  80% {
+    transform: translate(3px, 3px);
+  }
+}
+@keyframes glitch {
+  0%,
+  100% {
+    text-shadow:
+      3px 0 rgb(255 255 255 / 0.25),
+      -3px 0 rgb(255 70 90 / 0.8);
+  }
+  50% {
+    text-shadow:
+      -4px 0 rgb(255 255 255 / 0.25),
+      4px 0 rgb(255 70 90 / 0.8);
+  }
+}
+@keyframes scan {
+  to {
+    background-position: 0 100%;
+  }
+}
+@keyframes burst {
+  from {
+    transform: scale(0.2);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@layer utilities {
+  .animate-spin-slow {
+    animation: spin-slow 60s linear infinite;
+  }
+  .animate-spin-rev {
+    animation: spin-rev 60s linear infinite;
+  }
+  .animate-bob {
+    animation: bob 5s ease-in-out infinite;
+  }
+  .animate-marquee {
+    animation: marquee 38s linear infinite;
+  }
+  .animate-rise {
+    animation: rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .animate-slide-in-right {
+    animation: slide-in-right 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .animate-ring-pulse {
+    animation: ring-pulse 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  }
+  .animate-blink {
+    animation: blink 1s steps(1) infinite;
+  }
+  .animate-aurora {
+    animation: aurora 18s ease-in-out infinite;
+  }
+  .animate-shake {
+    animation: shake 0.45s linear 3;
+  }
+  .animate-glitch {
+    animation: glitch 0.18s steps(2) infinite;
+  }
+  .animate-burst {
+    animation: burst 1.6s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+  }
+  .animate-grow-x {
+    animation: grow-x 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    transform-origin: left;
+  }
+  .animate-pop {
+    animation: pop 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .flow-dash {
+    stroke-dasharray: 6 10;
+    animation: dash 6s linear infinite;
+  }
+  .skeleton {
+    background: linear-gradient(90deg, #eef0f4 25%, #f8f9fb 37%, #eef0f4 63%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+  .text-gradient {
+    background: linear-gradient(100deg, #0c0d12 10%, #6d5dfc 45%, #ff7a1a 80%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .bg-dots {
+    background-image: radial-gradient(rgb(12 13 18 / 0.08) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .mask-fade-x {
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+  .mask-fade-b {
+    mask-image: linear-gradient(180deg, #000 60%, transparent);
+  }
+  .scanlines {
+    background: repeating-linear-gradient(180deg, rgb(255 255 255 / 0.04) 0 2px, transparent 2px 4px);
+    background-size: 100% 400%;
+    animation: scan 8s linear infinite;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Scroll reveal: <Reveal> sets data-in once the element enters the viewport. */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  filter: blur(6px);
+  transition:
+    opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 0.8s ease;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal[data-in] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* Cursor spotlight on cards: <Spotlight> writes --mx/--my. */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, -40%), rgb(109 93 252 / 0.12), transparent 45%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: -1;
+  pointer-events: none;
+}
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* Animated gradient border (conic beam). */
+.beam {
+  position: relative;
+  isolation: isolate;
+}
+.beam::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from var(--beam-angle, 0deg), transparent 0 70%, #6d5dfc 80%, #ff7a1a 88%, transparent 96%);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: beam-turn 4s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@property --beam-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes beam-turn {
+  to {
+    --beam-angle: 360deg;
+  }
+}
+
+/* React Flow, light. */
+.react-flow__attribution {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
 }

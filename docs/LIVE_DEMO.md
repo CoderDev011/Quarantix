@@ -15,7 +15,7 @@ arena attempt through the tunnel took about 24 s for naive/guard and 5 s for ful
    clears the attacker page. Run it again without `--rebuild` between judge groups.
 3. Open the four screens it prints:
    - **Projector:** `<tunnel>/arena/screen`
-   - **Laptop:** `<tunnel>/` (console; log in with the admin token, keep Autopilot open)
+   - **Laptop:** `<tunnel>/app` (console; log in with the admin token, keep Autopilot open). `<tunnel>/` is the product page
    - **Attack station** (teammate's laptop or tablet): `<tunnel>/docs` → `POST /v1/arena/attempts`
    - **Second screen (optional):** `http://localhost:9000` (the attacker page)
 4. Prepare the SDK terminal (keys are read from `.env`, never printed):
@@ -46,7 +46,7 @@ Goals and their titles are listed at `<tunnel>/v1/arena/goals`.
 | 0:20 | Attack station → big screen | A judge attacks the support agent. Naive 💥, AgentWall 🛡. Click the row on the console's Live page: the reason and the data-path graph. |
 | 1:00 | A phishing-link attack (`support` / `link_planted`) | It passes Guard: the honest day-one gap. The big screen alarms. |
 | 1:20 | Console → Autopilot | The drafted rule, the proof table, "trigger stopped". Click **Enable**. Re-send the same text: blocked. The screen shows "Patched in m:ss". |
-| 2:00 | SDK terminal: `uv run python scripts/guarded_agent.py devops --plant "$ATTACK"` | "Any company's agent, three lines." The log tried to make it run a remote script; C1 blocked it. The model *says* it ignored it; the event log shows it tried. |
+| 2:00 | SDK terminal: `bash scripts/agent.sh devops --plant "$ATTACK"` | "Any company's agent, three lines." The log tried to make it run a remote script; C1 blocked it. The model *says* it ignored it; the event log shows it tried. |
 | 2:40 | Console → Proof wall | Every scenario, with its source. |
 | 2:50 | Close | "A firewall that learns from every attack and never ships a rule without proof." |
 
@@ -70,3 +70,26 @@ Optional (30 s): `docker compose stop api`, run the SDK attack again (still bloc
   labeled "scripted"). Quote only recorded runs, with n, mode, model and date.
 - That the SDK is a published package, supports other frameworks, or runs in production.
 - That the arena meets its 12 s latency budget (measured: about 24 s on 2026-11-15).
+
+## 6. Terminal-only demo (DevOps)
+
+Two terminal panes, no browser needed (Windows Terminal: Alt+Shift+D splits a pane).
+
+**Right pane: the firewall's view.**
+- Live: `uv run python scripts/qx_watch.py` (every decision as it happens: verdict, rule,
+  reason, data path).
+- Recorded, no model calls ($0): `uv run python scripts/qx_watch.py --runs`, then
+  `uv run python scripts/qx_watch.py --replay <run id> --speed 1.5`.
+  Real runs recorded 2026-11-14 UTC with gemini-3.1-flash-lite:
+  `f3ecf7fc` normal day (3 calls, all allowed), `4b043ae3` attack in monitor mode
+  (WOULD BLOCK, the command ran), `d5626bc8` attack enforced (BLOCKED by C1, the fix still ran).
+
+**Left pane: the agent** (prepare the shell as in section 1.4 first):
+1. `bash scripts/agent.sh devops` → the right pane shows ALLOWED calls and
+   the restart.
+2. `bash scripts/agent.sh devops --plant "$ATTACK"` → the right pane shows
+   `BLOCKED run_shell`, rule C1, "written by read_logs record L-201", path
+   `run_shell ← command ← read_logs L-201`.
+
+**No budget left?** Use only the replays: `--replay f3ecf7fc`, then `--replay 4b043ae3`,
+then `--replay d5626bc8`. Say they are recordings of real runs, with their date.
