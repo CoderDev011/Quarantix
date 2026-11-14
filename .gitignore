@@ -15,14 +15,14 @@ __pycache__/
 # Node / dashboard
 node_modules/
 dashboard/dist/
-quarantix/api/static/
+agentwall/api/static/
 
 # Runtime data
 data/
 *.db
 *.db-wal
 *.db-shm
-~/.quarantix/
+~/.agentwall/
 
 # Working notes and local references
 drafts/

@@ -21,7 +21,7 @@
 
 **The system prompt is a realistic production prompt with no injection defenses.** That's on purpose, and the README says so.
 
-**A blocked tool** returns an error result to the model: "Blocked by Quarantix: <reason>". The agent may continue or explain. It does not crash.
+**A blocked tool** returns an error result to the model: "Blocked by AgentWall: <reason>". The agent may continue or explain. It does not crash.
 
 **An invalid tool call** (unknown tool, bad arguments) → an error result back to the model, counted in the transcript.
 
