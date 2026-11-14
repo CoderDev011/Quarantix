@@ -17,4 +17,5 @@ reference
 .import_linter_cache
 tests
 docs
+!docs/incidents.md
 plan*.md

@@ -29,6 +29,8 @@ RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev
 COPY cassettes/ ./cassettes/
 COPY domains/ ./domains/
 COPY redteam/ ./redteam/
+COPY proof/ ./proof/
+COPY docs/incidents.md ./docs/incidents.md
 COPY --from=dashboard /build/dist/ ./quarantix/api/static/
 
 # Never run as root. /app/data holds the SQLite database (mount a volume there).
