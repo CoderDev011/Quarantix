@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    env:
+      LLM_MODE: replay   # CI never calls paid models (AGENTS.md section 8)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install
+        run: uv sync --frozen
+      - name: Lint
+        run: uv run ruff check .
+      - name: Format
+        run: uv run ruff format --check .
+      - name: Types
+        run: uv run pyright
+      - name: Import layering
+        run: uv run lint-imports
+      - name: Tests (replay mode, no live LLM)
+        run: uv run pytest -q
+
+  dashboard:
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('dashboard/package.json') != '' }}
+    defaults:
+      run:
+        working-directory: dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: dashboard/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build   # runs tsc -b (type check) then vite build

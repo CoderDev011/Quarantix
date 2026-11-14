@@ -1,0 +1,41 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.pyright/
+.hypothesis/
+
+# Node / dashboard
+node_modules/
+dashboard/dist/
+agentwall/api/static/
+
+# Runtime data
+data/
+*.db
+*.db-wal
+*.db-shm
+~/.agentwall/
+
+# Working notes and local references
+drafts/
+reference/
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Claude Code local state
+.claude/worktrees/
+*.kate-swp

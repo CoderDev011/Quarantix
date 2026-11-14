@@ -1,0 +1,129 @@
+[project]
+name = "agentwall"
+version = "0.1.0"
+description = "A firewall for AI agents: label-based enforcement that learns from attacks and proves every rule."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.7",
+    "sqlalchemy>=2.0",
+    "aiosqlite>=0.20",
+    "sse-starlette>=2.1",
+    "httpx>=0.27",
+    "pyyaml>=6.0",
+    "google-genai>=1.0",
+    "mcp>=1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "hypothesis>=6.100",
+    "respx>=0.21",
+    "ruff>=0.6",
+    "pyright>=1.1.380",
+    "import-linter>=2.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["agentwall"]
+
+# ---------------------------------------------------------------- quality
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["*.md"]  # plans and docs are not code; ruff must not reformat their examples
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "ASYNC", "SIM", "RUF", "S"]
+ignore = ["S101"]  # assert is fine in tests
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S"]
+
+[tool.pyright]
+include = ["agentwall", "tests"]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+markers = [
+    "perf: performance-budget benchmarks (prints measured numbers)",
+    "live: calls real LLM providers; never run in CI",
+]
+addopts = "-m 'not live'"
+
+# ---------------------------------------------------------------- layering (AGENTS.md section 5.2)
+[tool.importlinter]
+root_package = "agentwall"
+
+[[tool.importlinter.contracts]]
+name = "Layers: api > sdk > guard > engine > core"
+type = "layers"
+layers = [
+    "agentwall.api",
+    "agentwall.sdk",
+    "agentwall.guard",
+    "agentwall.engine",
+    "agentwall.core",
+]
+
+[[tool.importlinter.contracts]]
+name = "Core and engine never depend on ai, autopilot or packs"
+type = "forbidden"
+source_modules = ["agentwall.core", "agentwall.engine"]
+forbidden_modules = ["agentwall.ai", "agentwall.autopilot", "agentwall.packs"]
+
+[[tool.importlinter.contracts]]
+name = "AI depends only on core"
+type = "forbidden"
+source_modules = ["agentwall.ai"]
+forbidden_modules = [
+    "agentwall.engine",
+    "agentwall.guard",
+    "agentwall.sdk",
+    "agentwall.api",
+    "agentwall.autopilot",
+    "agentwall.packs",
+]
+
+[[tool.importlinter.contracts]]
+name = "The quarantined reader never touches tools or enforcement"
+type = "forbidden"
+source_modules = ["agentwall.ai.reader"]
+forbidden_modules = ["agentwall.core.registry", "agentwall.engine", "agentwall.guard"]
+
+[[tool.importlinter.contracts]]
+name = "Autopilot uses only core, engine and ai"
+type = "forbidden"
+source_modules = ["agentwall.autopilot"]
+forbidden_modules = ["agentwall.guard", "agentwall.sdk", "agentwall.api", "agentwall.packs"]
+
+[[tool.importlinter.contracts]]
+name = "Domain-pack loader uses only core and engine"
+type = "forbidden"
+source_modules = ["agentwall.packs"]
+forbidden_modules = [
+    "agentwall.ai",
+    "agentwall.guard",
+    "agentwall.sdk",
+    "agentwall.api",
+    "agentwall.autopilot",
+]
+
+[[tool.importlinter.contracts]]
+name = "Nothing imports the API"
+type = "forbidden"
+source_modules = ["agentwall.ai", "agentwall.autopilot", "agentwall.packs"]
+forbidden_modules = ["agentwall.api"]

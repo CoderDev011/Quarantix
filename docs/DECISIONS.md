@@ -1,0 +1,34 @@
+# Decisions
+
+Newest first. Each entry gives the date, the decision, who decided and why. Entries also record implementation choices that differ from a brief.
+
+| Date | Decision | Decided by | Why |
+|---|---|---|---|
+| 2026-11-14 | **Contract addition, needs team OK:** `runtime/mode-off` is the rule id on the decision returned in-process when an agent's mode is off. No event is emitted in off mode, so it never reaches the wire today. Add it to contracts section 6's runtime rule ids, or replace it | Claude (F05), awaiting the team | Off mode still needs a decision object for its caller |
+| 2026-11-14 | Policy-pack `modes` values and their agent names are read as raw words, so an unquoted `off` is the mode "off", not the YAML-1.1 boolean False | Claude (F05) | Found by a failing test: `modes: {agent: off}` failed to compile |
+| 2026-11-14 | Approval broker interface: `open(request, decision) -> id`, then `wait(id, max_wait)`. The in-process broker also has `next_pending()` for inboxes (F13 will long-poll on it) | Claude (F05) | Two steps let the runtime emit `approval.requested` before waiting. `max_wait` avoids the async-timeout lint rule |
+| 2026-11-14 | **F04 combine order** (`agentwall/engine/policy.py` `evaluate`): (1) the most severe core rule; ties go to the first fired, in order C1, C2, C3. (2) A core block → block; nothing relaxes it. (3) Any matched pack block → block. (4) Any matched pack ask → ask. (5) A core ask is relaxed only by a matched allow rule naming the exact tool; otherwise ask. (6) Otherwise the matched allow rule, or "default" allow | Claude (F04), per brief | Mirrors docs/features/F04 so reviewers can check the code against one written rule |
+| 2026-11-14 | F04 pack digest = sha256 of the pack's YAML source text (the bundle version hashes the sorted pack name:digest pairs). Formatting-only edits bump the version, which is harmless: agents just re-sync | Claude (F04) | Avoided building the whole document a second time: compile went from 18.8 ms to 5.3 ms median for 100 rules (budget 20 ms) |
+| 2026-11-14 | Request and decision types in `agentwall/core/contracts.py` are frozen dataclasses with `to_wire`/`from_wire` (contract JSON), not Pydantic. Pydantic models for HTTP come in F13 | Claude (F04) | They sit on the hot path (evaluation p99 105 µs with 100 rules); wire shapes are tested against contracts sections 5 and 6 |
+| 2026-11-14 | Two `# noqa: SIM110` in the policy hot path keep explicit loops instead of `all(<generator>)` | Claude (F04) | Measured: p99 405 → 168 µs standalone |
+| 2026-11-14 | Machine split: the user's laptop (8 GB RAM, Intel Iris) is for development only (uv + pnpm, replay tests, Gemini free tier; no Docker stack, no Ollama). The teammate's 16 GB laptop is the demo machine (Compose, Ollama, tunnel) and runs spike S1 | User | The user's laptop can't run the full stack plus Ollama |
+| 2026-11-14 | Dashboard on React 19, TypeScript 7, Vite 8, React Router 8 and Tailwind 4 (create-vite 9.3.4 defaults), instead of React 18 | Claude (Phase 0 scaffold) | The current generator defaults; the build and type check pass |
+| 2026-11-14 | The generic domain-pack loader, world, executor and goal checker live in `agentwall/packs/` (F03). It is under the domain-word ban and may import only core and engine | Claude (Phase 0 scaffold) | F03 didn't name a package; `domains/` holds content only |
+| 2026-11-14 | Python pinned to 3.12 via `.python-version`; uv installs it (WSL has 3.14 system Python) | Claude (Phase 0 scaffold) | Matches AGENTS.md section 6; avoids 3.14 wheel gaps |
+| 2026-11-14 | Plan restructured: `plan.md` index + `AGENTS.md` + `docs/contracts.md` + one brief per feature in `docs/features/` | User (grilling round 1, Q7) | Agents load only what they need; parallel work without conflicts |
+| 2026-11-14 | Contracts are binding; implementation is free, with deviations logged here | User (round 1, Q6) | Four people integrate through the contracts; quality comes from freedom inside them |
+| 2026-11-14 | Domains are config-only packs over 8 generic tool behaviors; no domain Python | User (round 3, Q1) | "Any domain" must be true in the demo, not only in the engine |
+| 2026-11-14 | Live "bring your own domain" is SHOULD; HR/payroll ships as a hand-checked third domain | User (round 3, Q2) | Strongest proof of generality, with a guaranteed fallback |
+| 2026-11-14 | Attacks are generic templates + ~3 hand-tuned attacks per domain; metrics per technique | User (round 3, Q3) | Generalizes across domains while keeping the demo reliable |
+| 2026-11-14 | A 20-scenario Real-World Proof Suite + Proof wall page | User (round 3, follow-up) | Proves real-life use to judges |
+| 2026-11-14 | The Autopilot demo uses a real gap (phishing link via a non-critical text argument), explained with the Slack AI incident; no staged gap | User (round 1, Q3) | Honest, unscripted, and happens naturally in crowd play |
+| 2026-11-14 | Booth reset restores the day-one policy; stage patches once | User (round 2, Q3) | Every judge group sees learn → patch live |
+| 2026-11-14 | Autopilot: human click on stage; autonomous mode for tighten-only rules, with canary auto-rollback | User (round 2, Q4) | Human-in-the-loop credibility plus a self-healing story |
+| 2026-11-14 | MCP stage moment: rug pull + pinning (deterministic); injection block only as a bonus | User (round 1, Q4) | Doesn't depend on the model taking the bait |
+| 2026-11-14 | Live planner is SHOULD; pinned plans are MUST | User (round 1, Q5) | Saves ~4 person-hours; the arena doesn't need it |
+| 2026-11-14 | Naive agent on `gemini-3.1-flash-lite`; Ollama `qwen2.5:3b` for the Red Agent, offline fallback and "weak baseline" toggle | User (round 1, Q2; round 2, Q1) | 16 GB RAM laptop, assumed CPU-only; arena latency |
+| 2026-11-14 | Arena budget $5, economy mode at $8, hard cap $10, 1 attack per player per 20 s, queue ≤ 50 | User (round 2, Q5) | $12 total Gemini budget |
+| 2026-11-14 | Booth + stage formats (defaults: 4 min booth, 3 min stage) | User (rounds 1–2) | Rules not yet supplied |
+| 2026-11-14 | Mixed coding agents: canonical `AGENTS.md`; `CLAUDE.md`/`GEMINI.md` point to it | User (round 2, Q6) | Works with any tool; one source of truth |
+| 2026-11-14 | Gemini + Ollama only; no Anthropic API | User (kickoff) | Budget |
+| 2026-11-14 | 24-hour event, 4 generalists, lanes for review ownership | User (kickoff) | |
