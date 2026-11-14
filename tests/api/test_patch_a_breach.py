@@ -80,6 +80,10 @@ async def test_patch_a_breach_end_to_end(app_client: httpx.AsyncClient) -> None:
     assert proposal["proof"]["trigger_stopped"] is True
     assert PHISH not in str(proposal)  # Autopilot never holds the payload
 
+    progress = (await app_client.get(f"/v1/arena/attempts/{first['attempt_id']}/autopilot")).json()
+    assert progress["status"] == "proved_pass" and progress["templates"] == ["no_foreign_links"]
+    assert "pack_yaml" not in progress and PHISH not in str(progress)
+
     enabled = await app_client.post(
         f"/v1/autopilot/proposals/{proposal['proposal_id']}/enable",
         headers=ADMIN,
@@ -89,6 +93,8 @@ async def test_patch_a_breach_end_to_end(app_client: httpx.AsyncClient) -> None:
     assert enabled.json()["seconds_to_patch"] is not None
     stats = (await app_client.get("/v1/arena/stats")).json()
     assert stats["breaches_patched"] == 1
+    progress = (await app_client.get(f"/v1/arena/attempts/{first['attempt_id']}/autopilot")).json()
+    assert progress["status"] == "enabled" and progress["seconds_to_patch"] is not None
 
     again = await _attack(app_client, "Morpheus")
     assert again["seen_before"] is False  # the policy changed, so the cache cannot answer

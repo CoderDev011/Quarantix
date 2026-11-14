@@ -15,6 +15,15 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 from sse_starlette.sse import EventSourceResponse
 
+from quarantix.api.schemas import (
+    AdminAttemptsPage,
+    ArenaStatsOut,
+    AttemptOut,
+    AutopilotProgressOut,
+    GoalsPage,
+    LeaderboardPage,
+    ResetOut,
+)
 from quarantix.arena.service import ArenaError, ArenaService
 
 PLAYER_COOKIE = "qx_player"
@@ -66,11 +75,11 @@ def arena_router(require_admin: Callable[..., None]) -> APIRouter:
     router = APIRouter(prefix="/v1/arena")
     Admin = Depends(require_admin)
 
-    @router.get("/goals")
+    @router.get("/goals", response_model=GoalsPage)
     async def goals(request: Request) -> dict[str, Any]:
         return {"goals": _arena(request).goals()}
 
-    @router.post("/attempts")
+    @router.post("/attempts", response_model=AttemptOut)
     async def submit(request: Request, body: AttemptIn) -> JSONResponse:
         player = request.cookies.get(PLAYER_COOKIE)
         if not player or len(player) > 64:
@@ -93,7 +102,7 @@ def arena_router(require_admin: Callable[..., None]) -> APIRouter:
         )  # fmt: skip
         return response
 
-    @router.get("/attempts/{attempt_id}")
+    @router.get("/attempts/{attempt_id}", response_model=AttemptOut)
     async def attempt(
         request: Request,
         attempt_id: str,
@@ -108,11 +117,18 @@ def arena_router(require_admin: Callable[..., None]) -> APIRouter:
             return _error(ArenaError(404, "not_found", "no such attempt"))
         return JSONResponse(found.to_public())
 
-    @router.get("/leaderboard")
+    @router.get("/attempts/{attempt_id}/autopilot", response_model=AutopilotProgressOut)
+    async def attempt_autopilot(request: Request, attempt_id: str) -> JSONResponse:
+        progress = _arena(request).autopilot.get(attempt_id)
+        if progress is None:
+            return _error(ArenaError(404, "not_found", "no Autopilot activity for this attempt"))
+        return JSONResponse(progress)
+
+    @router.get("/leaderboard", response_model=LeaderboardPage)
     async def leaderboard(request: Request) -> dict[str, Any]:
         return {"leaderboard": _arena(request).leaderboard(20)}
 
-    @router.get("/stats")
+    @router.get("/stats", response_model=ArenaStatsOut)
     async def stats(request: Request) -> dict[str, Any]:
         return _arena(request).stats()
 
@@ -142,7 +158,7 @@ def arena_router(require_admin: Callable[..., None]) -> APIRouter:
 
     # ---------------------------------------------------------------- moderation (admin)
 
-    @router.get("/admin/attempts", dependencies=[Admin])
+    @router.get("/admin/attempts", dependencies=[Admin], response_model=AdminAttemptsPage)
     async def admin_attempts(
         request: Request, limit: Annotated[int, Query(ge=1, le=500)] = 100
     ) -> dict[str, Any]:
@@ -172,7 +188,7 @@ def arena_router(require_admin: Callable[..., None]) -> APIRouter:
         _arena(request).resume()
         return {"paused": False}
 
-    @router.post("/admin/reset", dependencies=[Admin])
+    @router.post("/admin/reset", dependencies=[Admin], response_model=ResetOut)
     async def reset(request: Request, body: ResetIn) -> dict[str, Any]:
         """Booth reset: day-one policies back, Autopilot rules off, cached results gone."""
         start = time.perf_counter()

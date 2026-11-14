@@ -24,6 +24,7 @@ class Settings:
     dashboard_dir: Path | None = None  # the built console (dashboard/dist); None = API only
     domains_dir: Path | None = None  # domain packs; None = no arena, no domain policies
     traces_dir: Path | None = None  # recorded tool-call traces for Autopilot proofs
+    drafts_dir: Path | None = None  # generated domain drafts (F19)
     arena_workers: int = 2
     arena_queue_cap: int = 50
     arena_player_interval_s: float = 20.0

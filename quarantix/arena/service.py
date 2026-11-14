@@ -135,6 +135,7 @@ class ArenaService:
         link_factory: Callable[[Domain], AttackerLink] | None = None,
         economy: Callable[[], bool] = lambda: False,
         on_breach: Callable[[Attempt, str], None] | None = None,
+        public_url: str = "",
         workers: int = 2,
         queue_cap: int = 50,
         player_interval_s: float = 20.0,
@@ -149,6 +150,8 @@ class ArenaService:
         self.link_factory = link_factory
         self.economy = economy
         self.on_breach = on_breach
+        self.public_url = public_url
+        self.autopilot: dict[str, dict[str, Any]] = {}  # attempt id -> latest public progress
         self.workers = workers
         self.queue_cap = queue_cap
         self.player_interval_s = player_interval_s
@@ -200,6 +203,11 @@ class ArenaService:
             for goal in domain.goals.values()
         ]
 
+    def add_domain(self, domain: Domain) -> None:
+        """A newly confirmed pack: its goals appear in the arena at once."""
+        self.domains[domain.name] = domain
+        self._publish({"type": "goals", "goals": self.goals()})
+
     def get(self, attempt_id: str) -> Attempt:
         attempt = self.attempts.get(attempt_id)
         if attempt is None:
@@ -244,6 +252,7 @@ class ArenaService:
             "economy": bool(self.economy()),
             "paused": self.paused,
             "queue_depth": self._queue.qsize(),
+            "public_url": self.public_url,
         }
 
     # ---------------------------------------------------------------- submit
@@ -356,6 +365,25 @@ class ArenaService:
             self.attempts.clear()
             self._order.clear()
         self._publish({"type": "reset", "stats": self.stats()})
+
+    def autopilot_progress(self, data: dict[str, Any]) -> None:
+        """Public Autopilot progress for the screen and the breaching phone (no YAML, no text)."""
+        rules = data.get("candidate_rules") or []
+        public = {
+            "proposal_id": str(data.get("proposal_id", ""))[:20],
+            "status": str(data.get("status", ""))[:20],
+            "domain": str(data.get("domain", ""))[:40],
+            "verdict": data.get("verdict"),
+            "seconds_to_patch": data.get("seconds_to_patch"),
+            "templates": [str(c.get("template", ""))[:40] for c in rules][:5],
+            "attempt_ids": [str(a)[:20] for a in data.get("evidence_ids", [])][:20],
+            "cases": data.get("cases"),
+        }
+        for attempt_id in public["attempt_ids"]:
+            self.autopilot[attempt_id] = public
+        while len(self.autopilot) > MAX_ATTEMPTS_KEPT:
+            self.autopilot.pop(next(iter(self.autopilot)))
+        self._publish({"type": "autopilot", "autopilot": public})
 
     def mark_patched(self, count: int = 1) -> None:
         """Autopilot enabled a rule that stops a breach found here (F18)."""

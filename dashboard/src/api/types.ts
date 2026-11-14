@@ -65,7 +65,11 @@ export interface paths {
         /** Approvals */
         get: operations["approvals_v1_approvals_get"];
         put?: never;
-        post?: never;
+        /**
+         * Open Approval
+         * @description An SDK asks a person (contracts 5 and 6 shapes). The console shows it at once.
+         */
+        post: operations["open_approval_v1_approvals_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -83,6 +87,391 @@ export interface paths {
         put?: never;
         /** Resolve */
         post: operations["resolve_v1_approvals__approval_id__resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/approvals/{approval_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Approval Status */
+        get: operations["approval_status_v1_approvals__approval_id__status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/arena/admin/attempts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Attempts */
+        get: operations["admin_attempts_v1_arena_admin_attempts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/arena/admin/hide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Hide */
+        post: operations["hide_v1_arena_admin_hide_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/arena/admin/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pause */
+        post: operations["pause_v1_arena_admin_pause_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/arena/admin/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset
+         * @description Booth reset: day-one policies back, Autopilot rules off, cached results gone.
+         */
+        post: operations["reset_v1_arena_admin_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/arena/admin/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resume */
+        post: operations["resume_v1_arena_admin_resume_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/arena/attempts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit */
+        post: operations["submit_v1_arena_attempts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/arena/attempts/{attempt_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Attempt */
+        get: operations["attempt_v1_arena_attempts__attempt_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/arena/attempts/{attempt_id}/autopilot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Attempt Autopilot */
+        get: operations["attempt_autopilot_v1_arena_attempts__attempt_id__autopilot_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/arena/goals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Goals */
+        get: operations["goals_v1_arena_goals_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/arena/leaderboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Leaderboard */
+        get: operations["leaderboard_v1_arena_leaderboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/arena/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stats */
+        get: operations["stats_v1_arena_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/arena/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stream */
+        get: operations["stream_v1_arena_stream_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/autopilot/proposals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Proposals */
+        get: operations["proposals_v1_autopilot_proposals_get"];
+        put?: never;
+        /**
+         * Manual
+         * @description Draft and prove a rule for an arena attempt (e.g. one the console points at).
+         */
+        post: operations["manual_v1_autopilot_proposals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/autopilot/proposals/{proposal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Proposal */
+        get: operations["proposal_v1_autopilot_proposals__proposal_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/autopilot/proposals/{proposal_id}/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Enable */
+        post: operations["enable_v1_autopilot_proposals__proposal_id__enable_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/autopilot/proposals/{proposal_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject */
+        post: operations["reject_v1_autopilot_proposals__proposal_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/autopilot/proposals/{proposal_id}/rollback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rollback */
+        post: operations["rollback_v1_autopilot_proposals__proposal_id__rollback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/autopilot/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Settings */
+        get: operations["get_settings_v1_autopilot_settings_get"];
+        /** Put Settings */
+        put: operations["put_settings_v1_autopilot_settings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/domains/drafts/{draft_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Draft */
+        get: operations["get_draft_v1_domains_drafts__draft_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/domains/drafts/{draft_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm
+         * @description A person confirmed the labels: load the pack, seed its policy, show its goals.
+         */
+        post: operations["confirm_v1_domains_drafts__draft_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/domains/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate */
+        post: operations["generate_v1_domains_generate_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -209,6 +598,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/proof": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Proof */
+        get: operations["proof_v1_proof_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/session": {
         parameters: {
             query?: never;
@@ -234,6 +640,69 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AdminAttemptOut */
+        AdminAttemptOut: {
+            /** Attempt Id */
+            attempt_id: string;
+            defenders: components["schemas"]["DefendersOut"];
+            /** Domain */
+            domain: string;
+            /** Goal Id */
+            goal_id: string;
+            /** Goal Title */
+            goal_title: string;
+            /**
+             * Hidden
+             * @default false
+             */
+            hidden: boolean;
+            /** Nickname */
+            nickname: string;
+            /** Payload */
+            payload: string;
+            /**
+             * Pending Rerun
+             * @default false
+             */
+            pending_rerun: boolean;
+            /** Player Id */
+            player_id: string;
+            /**
+             * Points
+             * @default 0
+             */
+            points: number;
+            /**
+             * Queue Position
+             * @default 0
+             */
+            queue_position: number;
+            /**
+             * Seen Before
+             * @default false
+             */
+            seen_before: boolean;
+            /**
+             * Source
+             * @default human
+             * @enum {string}
+             */
+            source: "human" | "red_agent";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "running" | "done";
+            /** Technique Tags */
+            technique_tags: string[];
+            /** Time */
+            time: string;
+        };
+        /** AdminAttemptsPage */
+        AdminAttemptsPage: {
+            /** Attempts */
+            attempts: components["schemas"]["AdminAttemptOut"][];
+        };
         /** AgentOut */
         AgentOut: {
             /**
@@ -281,6 +750,40 @@ export interface components {
             /** Approvals */
             approvals: components["schemas"]["ApprovalOut"][];
         };
+        /** ArenaStatsOut */
+        ArenaStatsOut: {
+            /** Attacks Per Minute */
+            attacks_per_minute: number;
+            /** Attempts */
+            attempts: number;
+            /** Baseline Model */
+            baseline_model?: string | null;
+            breaches: components["schemas"]["BreachCountsOut"];
+            /** Breaches Found */
+            breaches_found: number;
+            /** Breaches Patched */
+            breaches_patched: number;
+            /**
+             * Economy
+             * @default false
+             */
+            economy: boolean;
+            /**
+             * Paused
+             * @default false
+             */
+            paused: boolean;
+            /**
+             * Public Url
+             * @default
+             */
+            public_url: string;
+            /**
+             * Queue Depth
+             * @default 0
+             */
+            queue_depth: number;
+        };
         /** ArgPreviewOut */
         ArgPreviewOut: {
             /** Evidence */
@@ -295,6 +798,134 @@ export interface components {
             redacted: boolean;
             /** Sha256 */
             sha256?: string | null;
+        };
+        /** AttemptIn */
+        AttemptIn: {
+            /** Domain */
+            domain: string;
+            /** Goal Id */
+            goal_id: string;
+            /** Nickname */
+            nickname?: string | null;
+            /** Payload */
+            payload: string;
+        };
+        /** AttemptOut */
+        AttemptOut: {
+            /** Attempt Id */
+            attempt_id: string;
+            defenders: components["schemas"]["DefendersOut"];
+            /** Domain */
+            domain: string;
+            /** Goal Id */
+            goal_id: string;
+            /** Goal Title */
+            goal_title: string;
+            /** Nickname */
+            nickname: string;
+            /**
+             * Pending Rerun
+             * @default false
+             */
+            pending_rerun: boolean;
+            /**
+             * Points
+             * @default 0
+             */
+            points: number;
+            /**
+             * Queue Position
+             * @default 0
+             */
+            queue_position: number;
+            /**
+             * Seen Before
+             * @default false
+             */
+            seen_before: boolean;
+            /**
+             * Source
+             * @default human
+             * @enum {string}
+             */
+            source: "human" | "red_agent";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "running" | "done";
+            /** Technique Tags */
+            technique_tags: string[];
+            /** Time */
+            time: string;
+        };
+        /** AutopilotProgressOut */
+        AutopilotProgressOut: {
+            /**
+             * Attempt Ids
+             * @default []
+             */
+            attempt_ids: string[];
+            /** Cases */
+            cases?: number | null;
+            /** Domain */
+            domain: string;
+            /** Proposal Id */
+            proposal_id: string;
+            /** Seconds To Patch */
+            seconds_to_patch?: number | null;
+            /** Status */
+            status: string;
+            /**
+             * Templates
+             * @default []
+             */
+            templates: string[];
+            /** Verdict */
+            verdict?: string | null;
+        };
+        /** AutopilotSettingsOut */
+        AutopilotSettingsOut: {
+            /** Autonomous */
+            autonomous: boolean;
+        };
+        /** BreachCountsOut */
+        BreachCountsOut: {
+            /**
+             * Full
+             * @default 0
+             */
+            full: number;
+            /**
+             * Guard
+             * @default 0
+             */
+            guard: number;
+            /**
+             * Naive
+             * @default 0
+             */
+            naive: number;
+        };
+        /** CandidateRuleOut */
+        CandidateRuleOut: {
+            /** Parameters */
+            parameters: {
+                [key: string]: unknown;
+            };
+            /** Template */
+            template: string;
+        };
+        /** ChangedCaseOut */
+        ChangedCaseOut: {
+            /** After */
+            after: string;
+            /** Before */
+            before: string;
+            /** Case Id */
+            case_id: string;
+            /** Rule */
+            rule?: string | null;
         };
         /** DecisionOut */
         DecisionOut: {
@@ -322,6 +953,94 @@ export interface components {
             reason: string;
             /** Rule */
             rule: string;
+        };
+        /** DefenderOut */
+        DefenderOut: {
+            /**
+             * Attacker Hits
+             * @default 0
+             */
+            attacker_hits: number;
+            /**
+             * Evaluation
+             * @default enforced
+             * @enum {string}
+             */
+            evaluation: "shadow" | "enforced";
+            /**
+             * Latency Ms
+             * @default 0
+             */
+            latency_ms: number;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "breached" | "blocked" | "neutralized" | "needs_approval" | "error";
+            /** Rule */
+            rule?: string | null;
+            /** Step */
+            step?: number | null;
+        };
+        /** DefendersOut */
+        DefendersOut: {
+            full?: components["schemas"]["DefenderOut"] | null;
+            guard?: components["schemas"]["DefenderOut"] | null;
+            naive?: components["schemas"]["DefenderOut"] | null;
+        };
+        /** DraftGoalOut */
+        DraftGoalOut: {
+            /** Goal Id */
+            goal_id: string;
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
+        };
+        /** DraftOut */
+        DraftOut: {
+            /** Agent */
+            agent?: string | null;
+            /** Changed By Hardening */
+            changed_by_hardening: number;
+            /** Description */
+            description: string;
+            /** Draft Id */
+            draft_id: string;
+            /**
+             * Errors
+             * @default []
+             */
+            errors: string[];
+            /**
+             * Goals
+             * @default []
+             */
+            goals: components["schemas"]["DraftGoalOut"][];
+            /** Guard Only */
+            guard_only: boolean;
+            /** Name */
+            name: string;
+            /** Review */
+            review: components["schemas"]["ReviewItemOut"][];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "validated" | "failed" | "confirmed";
+            /**
+             * Tools
+             * @default []
+             */
+            tools: string[];
+        };
+        /** EnableIn */
+        EnableIn: {
+            /**
+             * By
+             * @default human:console
+             */
+            by: string;
         };
         /** EventOut */
         EventOut: {
@@ -369,10 +1088,42 @@ export interface components {
             /** Events */
             events: components["schemas"]["EventOut"][];
         };
+        /** GenerateIn */
+        GenerateIn: {
+            /** Description */
+            description: string;
+        };
+        /** GoalOut */
+        GoalOut: {
+            /** Domain */
+            domain: string;
+            /** Domain Title */
+            domain_title: string;
+            /** Goal Id */
+            goal_id: string;
+            /** Kind */
+            kind: string;
+            /** Points */
+            points: number;
+            /** Title */
+            title: string;
+        };
+        /** GoalsPage */
+        GoalsPage: {
+            /** Goals */
+            goals: components["schemas"]["GoalOut"][];
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** HideIn */
+        HideIn: {
+            /** Attempt Id */
+            attempt_id?: string | null;
+            /** Player Id */
+            player_id?: string | null;
         };
         /** LabelOut */
         LabelOut: {
@@ -388,6 +1139,34 @@ export interface components {
             integrity: "trusted" | "untrusted";
             /** Sources */
             sources: string[];
+        };
+        /** LeaderRowOut */
+        LeaderRowOut: {
+            /** Attempts */
+            attempts: number;
+            /** Breaches */
+            breaches: number;
+            /** Nickname */
+            nickname: string;
+            /** Points */
+            points: number;
+            /** Rank */
+            rank: number;
+        };
+        /** LeaderboardPage */
+        LeaderboardPage: {
+            /** Leaderboard */
+            leaderboard: components["schemas"]["LeaderRowOut"][];
+        };
+        /** ManualIn */
+        ManualIn: {
+            /** Attempt Id */
+            attempt_id: string;
+            /**
+             * Defender
+             * @default guard
+             */
+            defender: string;
         };
         /** PathEdgeOut */
         PathEdgeOut: {
@@ -406,6 +1185,151 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** ProofModeOut */
+        ProofModeOut: {
+            /**
+             * Expected
+             * @default []
+             */
+            expected: string[];
+            /** Expected Rule */
+            expected_rule?: string | null;
+            /** Outcome */
+            outcome: string;
+            /** Passed */
+            passed?: boolean | null;
+            /** Rule */
+            rule?: string | null;
+            /** Source */
+            source?: string | null;
+            /** Why */
+            why?: string | null;
+        };
+        /** ProofOut */
+        ProofOut: {
+            after?: components["schemas"]["ProofSideOut"] | null;
+            before?: components["schemas"]["ProofSideOut"] | null;
+            /**
+             * Cases
+             * @default 0
+             */
+            cases: number;
+            /**
+             * Changed Cases
+             * @default []
+             */
+            changed_cases: components["schemas"]["ChangedCaseOut"][];
+            /**
+             * Decisions
+             * @default {}
+             */
+            decisions: {
+                [key: string]: unknown;
+            };
+            /** Mode */
+            mode?: string | null;
+            /**
+             * Reasons
+             * @default []
+             */
+            reasons: string[];
+            /**
+             * Seconds
+             * @default 0
+             */
+            seconds: number;
+            /**
+             * Trace Sources
+             * @default []
+             */
+            trace_sources: string[];
+            trigger?: components["schemas"]["TriggerProofOut"] | null;
+            /** Trigger Stopped */
+            trigger_stopped?: boolean | null;
+            /**
+             * Verdict
+             * @enum {string}
+             */
+            verdict: "pass" | "fail";
+        };
+        /** ProofReportOut */
+        ProofReportOut: {
+            /** Failed */
+            failed: number;
+            /** Partial */
+            partial: number;
+            /** Passed */
+            passed: number;
+            /** Scenarios */
+            scenarios: components["schemas"]["ScenarioResultOut"][];
+            /** Total */
+            total: number;
+        };
+        /** ProofSideOut */
+        ProofSideOut: {
+            approval_rate: components["schemas"]["RateOut"];
+            asr: components["schemas"]["RateOut"];
+            false_block_rate: components["schemas"]["RateOut"];
+            tsr: components["schemas"]["RateOut"];
+        };
+        /** ProposalOut */
+        ProposalOut: {
+            /** Agent */
+            agent: string;
+            /** Candidate Rules */
+            candidate_rules: components["schemas"]["CandidateRuleOut"][];
+            /** Created */
+            created: string;
+            /** Domain */
+            domain: string;
+            /**
+             * Draft Notes
+             * @default []
+             */
+            draft_notes: string[];
+            /** Draft Source */
+            draft_source: string;
+            /** Enabled By */
+            enabled_by?: string | null;
+            /** Enabled Version */
+            enabled_version?: string | null;
+            /** Evidence Ids */
+            evidence_ids: string[];
+            /** Facts */
+            facts: {
+                [key: string]: unknown;
+            };
+            /** Pack Name */
+            pack_name: string;
+            /** Pack Yaml */
+            pack_yaml: string;
+            /** Previous Version */
+            previous_version?: string | null;
+            proof?: components["schemas"]["ProofOut"] | null;
+            /** Proposal Id */
+            proposal_id: string;
+            /** Rationale */
+            rationale: string;
+            /** Seconds To Patch */
+            seconds_to_patch?: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "drafted" | "proving" | "proved_pass" | "proved_fail" | "enabled" | "rejected" | "rolled_back";
+            /** Tighten Only */
+            tighten_only: boolean;
+            /**
+             * Trigger
+             * @enum {string}
+             */
+            trigger: "arena_breach" | "monitor_findings" | "manual" | "red_agent_breach";
+        };
+        /** ProposalsPage */
+        ProposalsPage: {
+            /** Proposals */
+            proposals: components["schemas"]["ProposalOut"][];
+        };
         /** ProvenanceOut */
         ProvenanceOut: {
             /** Edges */
@@ -413,10 +1337,94 @@ export interface components {
             /** Nodes */
             nodes: components["schemas"]["PathNodeOut"][];
         };
+        /** RateOut */
+        RateOut: {
+            /** Ci95 */
+            ci95: number[];
+            /** K */
+            k: number;
+            /** N */
+            n: number;
+            /** Rate */
+            rate?: number | null;
+        };
+        /** ResetIn */
+        ResetIn: {
+            /**
+             * Clear Leaderboard
+             * @default false
+             */
+            clear_leaderboard: boolean;
+            /**
+             * Restore Policies
+             * @default true
+             */
+            restore_policies: boolean;
+        };
+        /** ResetOut */
+        ResetOut: {
+            /** Cleared Leaderboard */
+            cleared_leaderboard: boolean;
+            /** Removed */
+            removed: string[];
+            /** Restored */
+            restored: string[];
+            /** Seconds */
+            seconds: number;
+        };
+        /** ReviewItemOut */
+        ReviewItemOut: {
+            /** Changed */
+            changed: boolean;
+            /** Decision */
+            decision: string;
+            /** Reason */
+            reason: string;
+            /** Subject */
+            subject: string;
+        };
+        /** ScenarioResultOut */
+        ScenarioResultOut: {
+            /** Category */
+            category: string;
+            /** Modes */
+            modes: {
+                [key: string]: components["schemas"]["ProofModeOut"];
+            };
+            /** Scenario Id */
+            scenario_id: string;
+            /** Seconds */
+            seconds: number;
+            /** Title */
+            title: string;
+            /**
+             * Verdict
+             * @enum {string}
+             */
+            verdict: "pass" | "fail" | "partial";
+        };
         /** SessionIn */
         SessionIn: {
             /** Token */
             token: string;
+        };
+        /** SettingsIn */
+        SettingsIn: {
+            /** Autonomous */
+            autonomous: boolean;
+        };
+        /** TriggerProofOut */
+        TriggerProofOut: {
+            /** After */
+            after: string;
+            /** Attempt Id */
+            attempt_id: string;
+            /** Before */
+            before: string;
+            /** Rule */
+            rule?: string | null;
+            /** Stopped */
+            stopped: boolean;
         };
         /** ValidationError */
         ValidationError: {
@@ -565,6 +1573,39 @@ export interface operations {
             };
         };
     };
+    open_approval_v1_approvals_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     resolve_v1_approvals__approval_id__resolve_post: {
         parameters: {
             query?: {
@@ -589,6 +1630,789 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approval_status_v1_approvals__approval_id__status_get: {
+        parameters: {
+            query?: {
+                wait?: number;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                approval_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_attempts_v1_arena_admin_attempts_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAttemptsPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    hide_v1_arena_admin_hide_post: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HideIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    pause_v1_arena_admin_pause_post: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_v1_arena_admin_reset_post: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResetOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resume_v1_arena_admin_resume_post: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_v1_arena_attempts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttemptIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttemptOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    attempt_v1_arena_attempts__attempt_id__get: {
+        parameters: {
+            query?: {
+                wait?: number;
+            };
+            header?: never;
+            path: {
+                attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttemptOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    attempt_autopilot_v1_arena_attempts__attempt_id__autopilot_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutopilotProgressOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    goals_v1_arena_goals_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalsPage"];
+                };
+            };
+        };
+    };
+    leaderboard_v1_arena_leaderboard_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaderboardPage"];
+                };
+            };
+        };
+    };
+    stats_v1_arena_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArenaStatsOut"];
+                };
+            };
+        };
+    };
+    stream_v1_arena_stream_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    proposals_v1_autopilot_proposals_get: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalsPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    manual_v1_autopilot_proposals_post: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManualIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    proposal_v1_autopilot_proposals__proposal_id__get: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    enable_v1_autopilot_proposals__proposal_id__enable_post: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["EnableIn"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_v1_autopilot_proposals__proposal_id__reject_post: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rollback_v1_autopilot_proposals__proposal_id__rollback_post: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_settings_v1_autopilot_settings_get: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutopilotSettingsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_settings_v1_autopilot_settings_put: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SettingsIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutopilotSettingsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_draft_v1_domains_drafts__draft_id__get: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                draft_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_v1_domains_drafts__draft_id__confirm_post: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                draft_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_v1_domains_generate_post: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftOut"];
                 };
             };
             /** @description Validation Error */
@@ -876,6 +2700,39 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    proof_v1_proof_get: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProofReportOut"];
                 };
             };
             /** @description Validation Error */

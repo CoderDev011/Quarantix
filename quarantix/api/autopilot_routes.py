@@ -15,6 +15,12 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from quarantix.api.policies import PolicyService
+from quarantix.api.schemas import (
+    AutopilotSettingsOut,
+    ProofReportOut,
+    ProposalOut,
+    ProposalsPage,
+)
 from quarantix.api.store import Store
 from quarantix.arena.prover import ArenaTrigger, ReplayProver, breach_facts
 from quarantix.arena.service import ArenaService, Attempt
@@ -157,18 +163,18 @@ def _error(exc: AutopilotError) -> JSONResponse:
 def autopilot_router(require_admin: Callable[..., None]) -> APIRouter:
     router = APIRouter(prefix="/v1/autopilot", dependencies=[Depends(require_admin)])
 
-    @router.get("/proposals")
+    @router.get("/proposals", response_model=ProposalsPage)
     async def proposals(request: Request) -> dict[str, Any]:
         return {"proposals": [p.to_wire() for p in _autopilot(request).list()]}
 
-    @router.get("/proposals/{proposal_id}")
+    @router.get("/proposals/{proposal_id}", response_model=ProposalOut)
     async def proposal(request: Request, proposal_id: str) -> JSONResponse:
         try:
             return JSONResponse(_autopilot(request).get(proposal_id).to_wire())
         except AutopilotError as exc:
             return _error(exc)
 
-    @router.post("/proposals")
+    @router.post("/proposals", response_model=ProposalOut)
     async def manual(request: Request, body: ManualIn) -> JSONResponse:
         """Draft and prove a rule for an arena attempt (e.g. one the console points at)."""
         autopilot = _autopilot(request)
@@ -199,7 +205,7 @@ def autopilot_router(require_admin: Callable[..., None]) -> APIRouter:
         )
         return JSONResponse(created.to_wire(), status_code=201)
 
-    @router.post("/proposals/{proposal_id}/enable")
+    @router.post("/proposals/{proposal_id}/enable", response_model=ProposalOut)
     async def enable(
         request: Request, proposal_id: str, body: EnableIn | None = None
     ) -> JSONResponse:
@@ -209,27 +215,47 @@ def autopilot_router(require_admin: Callable[..., None]) -> APIRouter:
             return _error(exc)
         return JSONResponse(enabled.to_wire())
 
-    @router.post("/proposals/{proposal_id}/reject")
+    @router.post("/proposals/{proposal_id}/reject", response_model=ProposalOut)
     async def reject(request: Request, proposal_id: str) -> JSONResponse:
         try:
             return JSONResponse((await _autopilot(request).reject(proposal_id)).to_wire())
         except AutopilotError as exc:
             return _error(exc)
 
-    @router.post("/proposals/{proposal_id}/rollback")
+    @router.post("/proposals/{proposal_id}/rollback", response_model=ProposalOut)
     async def rollback(request: Request, proposal_id: str) -> JSONResponse:
         try:
             return JSONResponse((await _autopilot(request).rollback(proposal_id)).to_wire())
         except AutopilotError as exc:
             return _error(exc)
 
-    @router.get("/settings")
+    @router.get("/settings", response_model=AutopilotSettingsOut)
     async def get_settings(request: Request) -> dict[str, Any]:
         return {"autonomous": _autopilot(request).autonomous}
 
-    @router.put("/settings")
+    @router.put("/settings", response_model=AutopilotSettingsOut)
     async def put_settings(request: Request, body: SettingsIn) -> dict[str, Any]:
         _autopilot(request).autonomous = body.autonomous
         return {"autonomous": body.autonomous}
+
+    return router
+
+
+def proof_router(require_admin: Callable[..., None], root: Path) -> APIRouter:
+    """GET /v1/proof: run the Real-World Proof Suite (replay; full mode only with a paid reader)."""
+    from quarantix.arena.proof import load_scenarios, run_proof_suite
+
+    router = APIRouter(prefix="/v1/proof", dependencies=[Depends(require_admin)])
+
+    @router.get("", response_model=ProofReportOut)
+    async def proof(request: Request) -> dict[str, Any]:
+        domains = request.app.state.domains
+        scenarios = load_scenarios(root / "proof" / "scenarios", root / "docs" / "incidents.md")
+        traces = load_all_traces(root / "redteam" / "traces", domains)
+        models = getattr(request.app.state, "models", None)
+        reader = (
+            models.brains().reader if models is not None and models.planner is not None else None
+        )
+        return await run_proof_suite(scenarios, domains, traces, reader=reader)
 
     return router

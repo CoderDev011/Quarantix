@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
-GENERIC_PACKAGES = ("core", "ai", "engine", "guard", "sdk", "autopilot", "packs")
+GENERIC_PACKAGES = ("core", "ai", "engine", "guard", "sdk", "autopilot", "packs", "domaingen")
 DOMAIN_WORDS = frozenset(
     {
         "ticket", "tickets", "refund", "refunds", "customer", "customers",

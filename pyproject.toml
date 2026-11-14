@@ -123,6 +123,12 @@ forbidden_modules = [
 ]
 
 [[tool.importlinter.contracts]]
+name = "The domain generator uses only core, engine, ai and packs"
+type = "forbidden"
+source_modules = ["quarantix.domaingen"]
+forbidden_modules = ["quarantix.guard", "quarantix.sdk", "quarantix.api", "quarantix.arena", "quarantix.autopilot"]
+
+[[tool.importlinter.contracts]]
 name = "Only the API uses the arena"
 type = "forbidden"
 source_modules = [

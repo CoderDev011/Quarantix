@@ -8,6 +8,7 @@ hints at definition time, including the auth aliases local to `create_app`.
 """
 
 import json
+import os
 import time
 from collections import OrderedDict
 from collections.abc import AsyncIterator, Awaitable, Callable
@@ -22,8 +23,14 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from quarantix.api.arena_routes import arena_router
 from quarantix.api.auth import Credentials, bearer
-from quarantix.api.autopilot_routes import autopilot_router, breach_listener, build_autopilot
+from quarantix.api.autopilot_routes import (
+    autopilot_router,
+    breach_listener,
+    build_autopilot,
+    proof_router,
+)
 from quarantix.api.bus import EventBus
+from quarantix.api.domain_routes import domain_router
 from quarantix.api.policies import PolicyService
 from quarantix.api.schemas import AgentsPage, ApprovalsPage, EventsPage, SessionIn
 from quarantix.api.settings import Settings
@@ -113,6 +120,7 @@ def create_app(settings: Settings) -> FastAPI:
         app.state.seen_ids = OrderedDict()
         app.state.arena = None
         app.state.autopilot = None
+        app.state.domain_generator = None
         app.state.domains = {}
         closers: list[Any] = []
         if settings.domains_dir is not None and settings.domains_dir.is_dir():
@@ -458,6 +466,9 @@ def create_app(settings: Settings) -> FastAPI:
 
     app.include_router(arena_router(require_admin))
     app.include_router(autopilot_router(require_admin))
+    app.include_router(domain_router(require_admin))
+    if settings.domains_dir is not None:
+        app.include_router(proof_router(require_admin, settings.domains_dir.parent))
 
     # ---------------------------------------------------------------- the built dashboard (last!)
 
@@ -493,6 +504,7 @@ async def _start_domains(
         workers=settings.arena_workers,
         queue_cap=settings.arena_queue_cap,
         player_interval_s=settings.arena_player_interval_s,
+        public_url=os.environ.get("PUBLIC_BASE_URL", ""),
     )
     await arena.start()
     app.state.arena, app.state.models = arena, models
@@ -509,8 +521,23 @@ async def _start_domains(
     )
     await autopilot.start()
     bus.listeners.append(autopilot.observe)
+
+    def autopilot_to_arena(event: Event) -> None:
+        if event.kind.startswith("autopilot."):
+            arena.autopilot_progress(dict(event.data))
+
+    bus.listeners.append(autopilot_to_arena)
     arena.on_breach = breach_listener(autopilot, arena, policies)
     app.state.autopilot = autopilot
+
+    from quarantix.domaingen.generator import DomainGenerator
+
+    generator_llm, _ = models.drafter or (None, "none")
+    app.state.domain_generator = DomainGenerator(
+        generator_llm,
+        os.environ.get("GENERATOR_MODEL", "gemini-3.8-flash"),
+        settings.drafts_dir or (settings.domains_dir.parent / "data" / "drafts"),
+    )
     return domains
 
 

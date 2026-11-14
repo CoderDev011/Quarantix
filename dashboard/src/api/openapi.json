@@ -1,6 +1,126 @@
 {
   "components": {
     "schemas": {
+      "AdminAttemptOut": {
+        "properties": {
+          "attempt_id": {
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "defenders": {
+            "$ref": "#/components/schemas/DefendersOut"
+          },
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "goal_id": {
+            "title": "Goal Id",
+            "type": "string"
+          },
+          "goal_title": {
+            "title": "Goal Title",
+            "type": "string"
+          },
+          "hidden": {
+            "default": false,
+            "title": "Hidden",
+            "type": "boolean"
+          },
+          "nickname": {
+            "title": "Nickname",
+            "type": "string"
+          },
+          "payload": {
+            "title": "Payload",
+            "type": "string"
+          },
+          "pending_rerun": {
+            "default": false,
+            "title": "Pending Rerun",
+            "type": "boolean"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "points": {
+            "default": 0.0,
+            "title": "Points",
+            "type": "number"
+          },
+          "queue_position": {
+            "default": 0,
+            "title": "Queue Position",
+            "type": "integer"
+          },
+          "seen_before": {
+            "default": false,
+            "title": "Seen Before",
+            "type": "boolean"
+          },
+          "source": {
+            "default": "human",
+            "enum": [
+              "human",
+              "red_agent"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "running",
+              "done"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "technique_tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Technique Tags",
+            "type": "array"
+          },
+          "time": {
+            "title": "Time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "attempt_id",
+          "time",
+          "nickname",
+          "domain",
+          "goal_id",
+          "goal_title",
+          "technique_tags",
+          "status",
+          "defenders",
+          "payload",
+          "player_id"
+        ],
+        "title": "AdminAttemptOut",
+        "type": "object"
+      },
+      "AdminAttemptsPage": {
+        "properties": {
+          "attempts": {
+            "items": {
+              "$ref": "#/components/schemas/AdminAttemptOut"
+            },
+            "title": "Attempts",
+            "type": "array"
+          }
+        },
+        "required": [
+          "attempts"
+        ],
+        "title": "AdminAttemptsPage",
+        "type": "object"
+      },
       "AgentOut": {
         "properties": {
           "mode": {
@@ -128,6 +248,69 @@
         "title": "ApprovalsPage",
         "type": "object"
       },
+      "ArenaStatsOut": {
+        "properties": {
+          "attacks_per_minute": {
+            "title": "Attacks Per Minute",
+            "type": "integer"
+          },
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "baseline_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Model"
+          },
+          "breaches": {
+            "$ref": "#/components/schemas/BreachCountsOut"
+          },
+          "breaches_found": {
+            "title": "Breaches Found",
+            "type": "integer"
+          },
+          "breaches_patched": {
+            "title": "Breaches Patched",
+            "type": "integer"
+          },
+          "economy": {
+            "default": false,
+            "title": "Economy",
+            "type": "boolean"
+          },
+          "paused": {
+            "default": false,
+            "title": "Paused",
+            "type": "boolean"
+          },
+          "public_url": {
+            "default": "",
+            "title": "Public Url",
+            "type": "string"
+          },
+          "queue_depth": {
+            "default": 0,
+            "title": "Queue Depth",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "attempts",
+          "attacks_per_minute",
+          "breaches",
+          "breaches_found",
+          "breaches_patched"
+        ],
+        "title": "ArenaStatsOut",
+        "type": "object"
+      },
       "ArgPreviewOut": {
         "properties": {
           "evidence": {
@@ -176,6 +359,293 @@
           "preview"
         ],
         "title": "ArgPreviewOut",
+        "type": "object"
+      },
+      "AttemptIn": {
+        "additionalProperties": false,
+        "properties": {
+          "domain": {
+            "maxLength": 64,
+            "title": "Domain",
+            "type": "string"
+          },
+          "goal_id": {
+            "maxLength": 64,
+            "title": "Goal Id",
+            "type": "string"
+          },
+          "nickname": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nickname"
+          },
+          "payload": {
+            "maxLength": 4000,
+            "title": "Payload",
+            "type": "string"
+          }
+        },
+        "required": [
+          "domain",
+          "goal_id",
+          "payload"
+        ],
+        "title": "AttemptIn",
+        "type": "object"
+      },
+      "AttemptOut": {
+        "properties": {
+          "attempt_id": {
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "defenders": {
+            "$ref": "#/components/schemas/DefendersOut"
+          },
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "goal_id": {
+            "title": "Goal Id",
+            "type": "string"
+          },
+          "goal_title": {
+            "title": "Goal Title",
+            "type": "string"
+          },
+          "nickname": {
+            "title": "Nickname",
+            "type": "string"
+          },
+          "pending_rerun": {
+            "default": false,
+            "title": "Pending Rerun",
+            "type": "boolean"
+          },
+          "points": {
+            "default": 0.0,
+            "title": "Points",
+            "type": "number"
+          },
+          "queue_position": {
+            "default": 0,
+            "title": "Queue Position",
+            "type": "integer"
+          },
+          "seen_before": {
+            "default": false,
+            "title": "Seen Before",
+            "type": "boolean"
+          },
+          "source": {
+            "default": "human",
+            "enum": [
+              "human",
+              "red_agent"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "running",
+              "done"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "technique_tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Technique Tags",
+            "type": "array"
+          },
+          "time": {
+            "title": "Time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "attempt_id",
+          "time",
+          "nickname",
+          "domain",
+          "goal_id",
+          "goal_title",
+          "technique_tags",
+          "status",
+          "defenders"
+        ],
+        "title": "AttemptOut",
+        "type": "object"
+      },
+      "AutopilotProgressOut": {
+        "properties": {
+          "attempt_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Attempt Ids",
+            "type": "array"
+          },
+          "cases": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cases"
+          },
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "proposal_id": {
+            "title": "Proposal Id",
+            "type": "string"
+          },
+          "seconds_to_patch": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seconds To Patch"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "templates": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Templates",
+            "type": "array"
+          },
+          "verdict": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verdict"
+          }
+        },
+        "required": [
+          "proposal_id",
+          "status",
+          "domain"
+        ],
+        "title": "AutopilotProgressOut",
+        "type": "object"
+      },
+      "AutopilotSettingsOut": {
+        "properties": {
+          "autonomous": {
+            "title": "Autonomous",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "autonomous"
+        ],
+        "title": "AutopilotSettingsOut",
+        "type": "object"
+      },
+      "BreachCountsOut": {
+        "properties": {
+          "full": {
+            "default": 0,
+            "title": "Full",
+            "type": "integer"
+          },
+          "guard": {
+            "default": 0,
+            "title": "Guard",
+            "type": "integer"
+          },
+          "naive": {
+            "default": 0,
+            "title": "Naive",
+            "type": "integer"
+          }
+        },
+        "title": "BreachCountsOut",
+        "type": "object"
+      },
+      "CandidateRuleOut": {
+        "properties": {
+          "parameters": {
+            "additionalProperties": true,
+            "title": "Parameters",
+            "type": "object"
+          },
+          "template": {
+            "title": "Template",
+            "type": "string"
+          }
+        },
+        "required": [
+          "template",
+          "parameters"
+        ],
+        "title": "CandidateRuleOut",
+        "type": "object"
+      },
+      "ChangedCaseOut": {
+        "properties": {
+          "after": {
+            "title": "After",
+            "type": "string"
+          },
+          "before": {
+            "title": "Before",
+            "type": "string"
+          },
+          "case_id": {
+            "title": "Case Id",
+            "type": "string"
+          },
+          "rule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule"
+          }
+        },
+        "required": [
+          "case_id",
+          "before",
+          "after"
+        ],
+        "title": "ChangedCaseOut",
         "type": "object"
       },
       "DecisionOut": {
@@ -243,6 +713,226 @@
           "policy_version"
         ],
         "title": "DecisionOut",
+        "type": "object"
+      },
+      "DefenderOut": {
+        "properties": {
+          "attacker_hits": {
+            "default": 0,
+            "title": "Attacker Hits",
+            "type": "integer"
+          },
+          "evaluation": {
+            "default": "enforced",
+            "enum": [
+              "shadow",
+              "enforced"
+            ],
+            "title": "Evaluation",
+            "type": "string"
+          },
+          "latency_ms": {
+            "default": 0.0,
+            "title": "Latency Ms",
+            "type": "number"
+          },
+          "outcome": {
+            "enum": [
+              "breached",
+              "blocked",
+              "neutralized",
+              "needs_approval",
+              "error"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "rule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule"
+          },
+          "step": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Step"
+          }
+        },
+        "required": [
+          "outcome"
+        ],
+        "title": "DefenderOut",
+        "type": "object"
+      },
+      "DefendersOut": {
+        "properties": {
+          "full": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DefenderOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "guard": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DefenderOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "naive": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DefenderOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "DefendersOut",
+        "type": "object"
+      },
+      "DraftGoalOut": {
+        "properties": {
+          "goal_id": {
+            "title": "Goal Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "goal_id",
+          "kind",
+          "title"
+        ],
+        "title": "DraftGoalOut",
+        "type": "object"
+      },
+      "DraftOut": {
+        "properties": {
+          "agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent"
+          },
+          "changed_by_hardening": {
+            "title": "Changed By Hardening",
+            "type": "integer"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "draft_id": {
+            "title": "Draft Id",
+            "type": "string"
+          },
+          "errors": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Errors",
+            "type": "array"
+          },
+          "goals": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DraftGoalOut"
+            },
+            "title": "Goals",
+            "type": "array"
+          },
+          "guard_only": {
+            "title": "Guard Only",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "review": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewItemOut"
+            },
+            "title": "Review",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "validated",
+              "failed",
+              "confirmed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "tools": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Tools",
+            "type": "array"
+          }
+        },
+        "required": [
+          "draft_id",
+          "description",
+          "name",
+          "status",
+          "guard_only",
+          "review",
+          "changed_by_hardening"
+        ],
+        "title": "DraftOut",
+        "type": "object"
+      },
+      "EnableIn": {
+        "additionalProperties": false,
+        "properties": {
+          "by": {
+            "default": "human:console",
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9:_.\\- ]+$",
+            "title": "By",
+            "type": "string"
+          }
+        },
+        "title": "EnableIn",
         "type": "object"
       },
       "EventOut": {
@@ -398,6 +1088,75 @@
         "title": "EventsPage",
         "type": "object"
       },
+      "GenerateIn": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "maxLength": 400,
+            "title": "Description",
+            "type": "string"
+          }
+        },
+        "required": [
+          "description"
+        ],
+        "title": "GenerateIn",
+        "type": "object"
+      },
+      "GoalOut": {
+        "properties": {
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "domain_title": {
+            "title": "Domain Title",
+            "type": "string"
+          },
+          "goal_id": {
+            "title": "Goal Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "points": {
+            "title": "Points",
+            "type": "number"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "domain",
+          "domain_title",
+          "goal_id",
+          "kind",
+          "title",
+          "points"
+        ],
+        "title": "GoalOut",
+        "type": "object"
+      },
+      "GoalsPage": {
+        "properties": {
+          "goals": {
+            "items": {
+              "$ref": "#/components/schemas/GoalOut"
+            },
+            "title": "Goals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "goals"
+        ],
+        "title": "GoalsPage",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -409,6 +1168,35 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HideIn": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Id"
+          },
+          "player_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Id"
+          }
+        },
+        "title": "HideIn",
         "type": "object"
       },
       "LabelOut": {
@@ -445,6 +1233,76 @@
           "sources"
         ],
         "title": "LabelOut",
+        "type": "object"
+      },
+      "LeaderRowOut": {
+        "properties": {
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "breaches": {
+            "title": "Breaches",
+            "type": "integer"
+          },
+          "nickname": {
+            "title": "Nickname",
+            "type": "string"
+          },
+          "points": {
+            "title": "Points",
+            "type": "number"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "rank",
+          "nickname",
+          "points",
+          "attempts",
+          "breaches"
+        ],
+        "title": "LeaderRowOut",
+        "type": "object"
+      },
+      "LeaderboardPage": {
+        "properties": {
+          "leaderboard": {
+            "items": {
+              "$ref": "#/components/schemas/LeaderRowOut"
+            },
+            "title": "Leaderboard",
+            "type": "array"
+          }
+        },
+        "required": [
+          "leaderboard"
+        ],
+        "title": "LeaderboardPage",
+        "type": "object"
+      },
+      "ManualIn": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "maxLength": 64,
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "defender": {
+            "default": "guard",
+            "pattern": "^(guard|full)$",
+            "title": "Defender",
+            "type": "string"
+          }
+        },
+        "required": [
+          "attempt_id"
+        ],
+        "title": "ManualIn",
         "type": "object"
       },
       "PathEdgeOut": {
@@ -492,6 +1350,429 @@
         "title": "PathNodeOut",
         "type": "object"
       },
+      "ProofModeOut": {
+        "properties": {
+          "expected": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Expected",
+            "type": "array"
+          },
+          "expected_rule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Rule"
+          },
+          "outcome": {
+            "title": "Outcome",
+            "type": "string"
+          },
+          "passed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passed"
+          },
+          "rule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "why": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Why"
+          }
+        },
+        "required": [
+          "outcome"
+        ],
+        "title": "ProofModeOut",
+        "type": "object"
+      },
+      "ProofOut": {
+        "properties": {
+          "after": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProofSideOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "before": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProofSideOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cases": {
+            "default": 0,
+            "title": "Cases",
+            "type": "integer"
+          },
+          "changed_cases": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ChangedCaseOut"
+            },
+            "title": "Changed Cases",
+            "type": "array"
+          },
+          "decisions": {
+            "additionalProperties": true,
+            "default": {},
+            "title": "Decisions",
+            "type": "object"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "reasons": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "seconds": {
+            "default": 0.0,
+            "title": "Seconds",
+            "type": "number"
+          },
+          "trace_sources": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Trace Sources",
+            "type": "array"
+          },
+          "trigger": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TriggerProofOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trigger_stopped": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger Stopped"
+          },
+          "verdict": {
+            "enum": [
+              "pass",
+              "fail"
+            ],
+            "title": "Verdict",
+            "type": "string"
+          }
+        },
+        "required": [
+          "verdict"
+        ],
+        "title": "ProofOut",
+        "type": "object"
+      },
+      "ProofReportOut": {
+        "properties": {
+          "failed": {
+            "title": "Failed",
+            "type": "integer"
+          },
+          "partial": {
+            "title": "Partial",
+            "type": "integer"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "integer"
+          },
+          "scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/ScenarioResultOut"
+            },
+            "title": "Scenarios",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "scenarios",
+          "passed",
+          "partial",
+          "failed",
+          "total"
+        ],
+        "title": "ProofReportOut",
+        "type": "object"
+      },
+      "ProofSideOut": {
+        "properties": {
+          "approval_rate": {
+            "$ref": "#/components/schemas/RateOut"
+          },
+          "asr": {
+            "$ref": "#/components/schemas/RateOut"
+          },
+          "false_block_rate": {
+            "$ref": "#/components/schemas/RateOut"
+          },
+          "tsr": {
+            "$ref": "#/components/schemas/RateOut"
+          }
+        },
+        "required": [
+          "asr",
+          "tsr",
+          "false_block_rate",
+          "approval_rate"
+        ],
+        "title": "ProofSideOut",
+        "type": "object"
+      },
+      "ProposalOut": {
+        "properties": {
+          "agent": {
+            "title": "Agent",
+            "type": "string"
+          },
+          "candidate_rules": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateRuleOut"
+            },
+            "title": "Candidate Rules",
+            "type": "array"
+          },
+          "created": {
+            "title": "Created",
+            "type": "string"
+          },
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "draft_notes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Draft Notes",
+            "type": "array"
+          },
+          "draft_source": {
+            "title": "Draft Source",
+            "type": "string"
+          },
+          "enabled_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled By"
+          },
+          "enabled_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled Version"
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Ids",
+            "type": "array"
+          },
+          "facts": {
+            "additionalProperties": true,
+            "title": "Facts",
+            "type": "object"
+          },
+          "pack_name": {
+            "title": "Pack Name",
+            "type": "string"
+          },
+          "pack_yaml": {
+            "title": "Pack Yaml",
+            "type": "string"
+          },
+          "previous_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Version"
+          },
+          "proof": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProofOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "proposal_id": {
+            "title": "Proposal Id",
+            "type": "string"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          },
+          "seconds_to_patch": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seconds To Patch"
+          },
+          "status": {
+            "enum": [
+              "drafted",
+              "proving",
+              "proved_pass",
+              "proved_fail",
+              "enabled",
+              "rejected",
+              "rolled_back"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "tighten_only": {
+            "title": "Tighten Only",
+            "type": "boolean"
+          },
+          "trigger": {
+            "enum": [
+              "arena_breach",
+              "monitor_findings",
+              "manual",
+              "red_agent_breach"
+            ],
+            "title": "Trigger",
+            "type": "string"
+          }
+        },
+        "required": [
+          "proposal_id",
+          "created",
+          "trigger",
+          "domain",
+          "agent",
+          "evidence_ids",
+          "facts",
+          "candidate_rules",
+          "tighten_only",
+          "rationale",
+          "draft_source",
+          "pack_name",
+          "pack_yaml",
+          "status"
+        ],
+        "title": "ProposalOut",
+        "type": "object"
+      },
+      "ProposalsPage": {
+        "properties": {
+          "proposals": {
+            "items": {
+              "$ref": "#/components/schemas/ProposalOut"
+            },
+            "title": "Proposals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "proposals"
+        ],
+        "title": "ProposalsPage",
+        "type": "object"
+      },
       "ProvenanceOut": {
         "properties": {
           "edges": {
@@ -516,6 +1797,168 @@
         "title": "ProvenanceOut",
         "type": "object"
       },
+      "RateOut": {
+        "properties": {
+          "ci95": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Ci95",
+            "type": "array"
+          },
+          "k": {
+            "title": "K",
+            "type": "integer"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate"
+          }
+        },
+        "required": [
+          "k",
+          "n",
+          "ci95"
+        ],
+        "title": "RateOut",
+        "type": "object"
+      },
+      "ResetIn": {
+        "additionalProperties": false,
+        "properties": {
+          "clear_leaderboard": {
+            "default": false,
+            "title": "Clear Leaderboard",
+            "type": "boolean"
+          },
+          "restore_policies": {
+            "default": true,
+            "title": "Restore Policies",
+            "type": "boolean"
+          }
+        },
+        "title": "ResetIn",
+        "type": "object"
+      },
+      "ResetOut": {
+        "properties": {
+          "cleared_leaderboard": {
+            "title": "Cleared Leaderboard",
+            "type": "boolean"
+          },
+          "removed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Removed",
+            "type": "array"
+          },
+          "restored": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Restored",
+            "type": "array"
+          },
+          "seconds": {
+            "title": "Seconds",
+            "type": "number"
+          }
+        },
+        "required": [
+          "restored",
+          "removed",
+          "cleared_leaderboard",
+          "seconds"
+        ],
+        "title": "ResetOut",
+        "type": "object"
+      },
+      "ReviewItemOut": {
+        "properties": {
+          "changed": {
+            "title": "Changed",
+            "type": "boolean"
+          },
+          "decision": {
+            "title": "Decision",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject",
+          "decision",
+          "reason",
+          "changed"
+        ],
+        "title": "ReviewItemOut",
+        "type": "object"
+      },
+      "ScenarioResultOut": {
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "modes": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProofModeOut"
+            },
+            "title": "Modes",
+            "type": "object"
+          },
+          "scenario_id": {
+            "title": "Scenario Id",
+            "type": "string"
+          },
+          "seconds": {
+            "title": "Seconds",
+            "type": "number"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "verdict": {
+            "enum": [
+              "pass",
+              "fail",
+              "partial"
+            ],
+            "title": "Verdict",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scenario_id",
+          "title",
+          "category",
+          "verdict",
+          "modes",
+          "seconds"
+        ],
+        "title": "ScenarioResultOut",
+        "type": "object"
+      },
       "SessionIn": {
         "properties": {
           "token": {
@@ -527,6 +1970,59 @@
           "token"
         ],
         "title": "SessionIn",
+        "type": "object"
+      },
+      "SettingsIn": {
+        "additionalProperties": false,
+        "properties": {
+          "autonomous": {
+            "title": "Autonomous",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "autonomous"
+        ],
+        "title": "SettingsIn",
+        "type": "object"
+      },
+      "TriggerProofOut": {
+        "properties": {
+          "after": {
+            "title": "After",
+            "type": "string"
+          },
+          "attempt_id": {
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "before": {
+            "title": "Before",
+            "type": "string"
+          },
+          "rule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule"
+          },
+          "stopped": {
+            "title": "Stopped",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "attempt_id",
+          "before",
+          "after",
+          "stopped"
+        ],
+        "title": "TriggerProofOut",
         "type": "object"
       },
       "ValidationError": {
@@ -792,6 +2288,53 @@
           }
         },
         "summary": "Approvals"
+      },
+      "post": {
+        "description": "An SDK asks a person (contracts 5 and 6 shapes). The console shows it at once.",
+        "operationId": "open_approval_v1_approvals_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Open Approval V1 Approvals Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Open Approval"
       }
     },
     "/v1/approvals/{approval_id}/resolve": {
@@ -865,6 +2408,1398 @@
           }
         },
         "summary": "Resolve"
+      }
+    },
+    "/v1/approvals/{approval_id}/status": {
+      "get": {
+        "operationId": "approval_status_v1_approvals__approval_id__status_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "approval_id",
+            "required": true,
+            "schema": {
+              "title": "Approval Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "wait",
+            "required": false,
+            "schema": {
+              "default": 25.0,
+              "minimum": 0,
+              "title": "Wait",
+              "type": "number"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Approval Status V1 Approvals  Approval Id  Status Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Approval Status"
+      }
+    },
+    "/v1/arena/admin/attempts": {
+      "get": {
+        "operationId": "admin_attempts_v1_arena_admin_attempts_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAttemptsPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Admin Attempts"
+      }
+    },
+    "/v1/arena/admin/hide": {
+      "post": {
+        "operationId": "hide_v1_arena_admin_hide_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HideIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Hide"
+      }
+    },
+    "/v1/arena/admin/pause": {
+      "post": {
+        "operationId": "pause_v1_arena_admin_pause_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Pause V1 Arena Admin Pause Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Pause"
+      }
+    },
+    "/v1/arena/admin/reset": {
+      "post": {
+        "description": "Booth reset: day-one policies back, Autopilot rules off, cached results gone.",
+        "operationId": "reset_v1_arena_admin_reset_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reset"
+      }
+    },
+    "/v1/arena/admin/resume": {
+      "post": {
+        "operationId": "resume_v1_arena_admin_resume_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Resume V1 Arena Admin Resume Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Resume"
+      }
+    },
+    "/v1/arena/attempts": {
+      "post": {
+        "operationId": "submit_v1_arena_attempts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttemptIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit"
+      }
+    },
+    "/v1/arena/attempts/{attempt_id}": {
+      "get": {
+        "operationId": "attempt_v1_arena_attempts__attempt_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "required": true,
+            "schema": {
+              "title": "Attempt Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "wait",
+            "required": false,
+            "schema": {
+              "default": 0.0,
+              "maximum": 60,
+              "minimum": 0,
+              "title": "Wait",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Attempt"
+      }
+    },
+    "/v1/arena/attempts/{attempt_id}/autopilot": {
+      "get": {
+        "operationId": "attempt_autopilot_v1_arena_attempts__attempt_id__autopilot_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "required": true,
+            "schema": {
+              "title": "Attempt Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutopilotProgressOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Attempt Autopilot"
+      }
+    },
+    "/v1/arena/goals": {
+      "get": {
+        "operationId": "goals_v1_arena_goals_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoalsPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Goals"
+      }
+    },
+    "/v1/arena/leaderboard": {
+      "get": {
+        "operationId": "leaderboard_v1_arena_leaderboard_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Leaderboard"
+      }
+    },
+    "/v1/arena/stats": {
+      "get": {
+        "operationId": "stats_v1_arena_stats_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArenaStatsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Stats"
+      }
+    },
+    "/v1/arena/stream": {
+      "get": {
+        "operationId": "stream_v1_arena_stream_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Stream"
+      }
+    },
+    "/v1/autopilot/proposals": {
+      "get": {
+        "operationId": "proposals_v1_autopilot_proposals_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalsPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Proposals"
+      },
+      "post": {
+        "description": "Draft and prove a rule for an arena attempt (e.g. one the console points at).",
+        "operationId": "manual_v1_autopilot_proposals_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Manual"
+      }
+    },
+    "/v1/autopilot/proposals/{proposal_id}": {
+      "get": {
+        "operationId": "proposal_v1_autopilot_proposals__proposal_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Proposal"
+      }
+    },
+    "/v1/autopilot/proposals/{proposal_id}/enable": {
+      "post": {
+        "operationId": "enable_v1_autopilot_proposals__proposal_id__enable_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/EnableIn"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Enable"
+      }
+    },
+    "/v1/autopilot/proposals/{proposal_id}/reject": {
+      "post": {
+        "operationId": "reject_v1_autopilot_proposals__proposal_id__reject_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reject"
+      }
+    },
+    "/v1/autopilot/proposals/{proposal_id}/rollback": {
+      "post": {
+        "operationId": "rollback_v1_autopilot_proposals__proposal_id__rollback_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Rollback"
+      }
+    },
+    "/v1/autopilot/settings": {
+      "get": {
+        "operationId": "get_settings_v1_autopilot_settings_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutopilotSettingsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Settings"
+      },
+      "put": {
+        "operationId": "put_settings_v1_autopilot_settings_put",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutopilotSettingsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Settings"
+      }
+    },
+    "/v1/domains/drafts/{draft_id}": {
+      "get": {
+        "operationId": "get_draft_v1_domains_drafts__draft_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draft_id",
+            "required": true,
+            "schema": {
+              "title": "Draft Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Draft"
+      }
+    },
+    "/v1/domains/drafts/{draft_id}/confirm": {
+      "post": {
+        "description": "A person confirmed the labels: load the pack, seed its policy, show its goals.",
+        "operationId": "confirm_v1_domains_drafts__draft_id__confirm_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draft_id",
+            "required": true,
+            "schema": {
+              "title": "Draft Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Confirm"
+      }
+    },
+    "/v1/domains/generate": {
+      "post": {
+        "operationId": "generate_v1_domains_generate_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Generate"
       }
     },
     "/v1/events": {
@@ -1549,6 +4484,68 @@
           }
         },
         "summary": "Validate Pack"
+      }
+    },
+    "/v1/proof": {
+      "get": {
+        "operationId": "proof_v1_proof_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProofReportOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Proof"
       }
     },
     "/v1/session": {

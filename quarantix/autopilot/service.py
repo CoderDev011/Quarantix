@@ -376,6 +376,8 @@ class AutopilotService:
             "candidate_rules": [c.to_wire() for c in proposal.candidates],
             "verdict": (proposal.proof or {}).get("verdict"),
             "seconds_to_patch": proposal.to_wire()["seconds_to_patch"],
+            "evidence_ids": list(proposal.evidence_ids),
+            "cases": (proposal.proof or {}).get("cases"),
             **dict(extra or {}),
         }
         with contextlib.suppress(Exception):

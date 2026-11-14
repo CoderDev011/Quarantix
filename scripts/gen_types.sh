@@ -9,12 +9,13 @@ cd "$(dirname "$0")/.."
 
 uv run python - <<'PY' > dashboard/src/api/openapi.json
 import json
+from pathlib import Path
 
 from quarantix.api.app import create_app
 from quarantix.api.settings import Settings
 
 # Building the schema needs no database or real secrets: the app is never started.
-settings = Settings(database_url="sqlite+aiosqlite://", admin_token="x" * 16)
+settings = Settings(database_url="sqlite+aiosqlite://", admin_token="x" * 16, domains_dir=Path("domains"))
 print(json.dumps(create_app(settings).openapi(), indent=2, sort_keys=True))
 PY
 
