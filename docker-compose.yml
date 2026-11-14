@@ -1,0 +1,46 @@
+# Quarantix stack (F23). One image, one command:
+#   docker compose up -d --build            # API + console on http://localhost:8000
+#   docker compose --profile local-llm up -d  # also start Ollama (demo laptop: 16 GB)
+# Settings come from .env (copy .env.example). Services that are not built yet
+# (MCP gateway, tool servers, attacker page, tunnel) are added with their features.
+name: quarantix
+
+services:
+  api:
+    build: .
+    image: quarantix:demo
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      AGENTWALL_DB: sqlite+aiosqlite:////app/data/quarantix.db
+    volumes:
+      - qx-data:/app/data
+    mem_limit: 1g
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2).status == 200 else 1)"
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  ollama:
+    image: ollama/ollama:0.12.6
+    profiles: ["local-llm"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    mem_limit: 4g
+    restart: unless-stopped
+
+volumes:
+  qx-data:
+  ollama-models:

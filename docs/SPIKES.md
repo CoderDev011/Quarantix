@@ -23,6 +23,11 @@ Starting balance: _not yet recorded; read it from the Google console before spik
 
 ---
 
+## F23 image and stack (2026-11-14, dev laptop)
+**Run:** `docker build -t quarantix:demo .`, then `SMOKE_IMAGE=quarantix:demo SMOKE_PORT=18000 bash scripts/smoke_api.sh`.
+**Result: pass.** Build exit 0; image 412 MB; runs as uid 10001; no `.env` inside; console assets present. All 9 smoke checks pass against the container: console served, cookie login, policy pack saved, event uploaded, SSE delivered, `Last-Event-ID` resume, bundle ETag/304, stream refuses no token. `docker compose config -q` passes (`api`; plus `ollama` with `--profile local-llm`).
+**Not checked:** cold start on the 16 GB demo laptop (budget < 2 min from pulled images); the full stack with Ollama running; the tunnel (spike S3).
+
 ## Checkpoint IC1 (hour 6): engine proves the model, no LLM (2026-11-14)
 **Run:** `uv run python scripts/demo_core.py` inside WSL on the dev laptop (8 GB RAM, Intel Iris).
 **Result: pass.** Exit code 0. The safe plan's refund of ORD-1001 (120.0) was **ALLOWED** by `support/refunds-under-limit`. The naive plan's refund of 4999.0 was **BLOCKED** by `core/C1-untrusted-critical-arg`, with path `order_number <- extract s2.order_number <- get_ticket T-102.text (untrusted)`.

@@ -15,13 +15,14 @@ from typing import Annotated, Any
 
 from fastapi import Depends, FastAPI, Header, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from sse_starlette.sse import EventSourceResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from quarantix.api.auth import Credentials, bearer
 from quarantix.api.bus import EventBus
 from quarantix.api.policies import PolicyService
+from quarantix.api.schemas import AgentsPage, ApprovalsPage, EventsPage, SessionIn
 from quarantix.api.settings import Settings
 from quarantix.api.sse import event_stream
 from quarantix.api.store import Store
@@ -191,7 +192,7 @@ def create_app(settings: Settings) -> FastAPI:
             accepted += 1
         return {"accepted": accepted, "duplicates": duplicates, "rejected": rejected}
 
-    @app.get("/v1/events", dependencies=[Admin])
+    @app.get("/v1/events", dependencies=[Admin], response_model=EventsPage)
     async def history(
         request: Request,
         since: int = 0,
@@ -283,7 +284,7 @@ def create_app(settings: Settings) -> FastAPI:
 
     # ---------------------------------------------------------------- agents
 
-    @app.get("/v1/agents", dependencies=[Admin])
+    @app.get("/v1/agents", dependencies=[Admin], response_model=AgentsPage)
     async def agents(request: Request) -> dict[str, Any]:
         directory: AgentDirectory = request.app.state.agents
         policies: PolicyService = request.app.state.policies
@@ -313,7 +314,7 @@ def create_app(settings: Settings) -> FastAPI:
 
     # ---------------------------------------------------------------- approvals inbox
 
-    @app.get("/v1/approvals", dependencies=[Admin])
+    @app.get("/v1/approvals", dependencies=[Admin], response_model=ApprovalsPage)
     async def approvals(request: Request) -> dict[str, Any]:
         broker: InProcessApprovalBroker = request.app.state.approvals
         now = time.monotonic()
@@ -349,7 +350,64 @@ def create_app(settings: Settings) -> FastAPI:
             raise ApiError(422, "invalid_request", str(exc)) from None
         return {"id": approval_id, "verdict": body.get("verdict")}
 
+    # ---------------------------------------------------------------- console login (cookie)
+
+    @app.post("/v1/session")
+    async def login(request: Request, body: SessionIn) -> JSONResponse:
+        """Swap the admin token for an HttpOnly cookie, so the live stream never needs ?token=."""
+        if not credentials.is_admin(body.token):
+            raise ApiError(401, "unauthorized", "the admin token is not valid")
+        response = JSONResponse({"ok": True})
+        response.set_cookie(
+            ADMIN_COOKIE,
+            body.token,
+            max_age=12 * 3600,
+            httponly=True,
+            samesite="strict",
+            secure=request.url.scheme == "https",
+            path="/",
+        )
+        return response
+
+    @app.delete("/v1/session")
+    async def logout() -> JSONResponse:
+        response = JSONResponse({"ok": True})
+        response.delete_cookie(ADMIN_COOKIE, path="/")
+        return response
+
+    # ---------------------------------------------------------------- the built dashboard (last!)
+
+    _serve_dashboard(app, settings)
     return app
+
+
+_NOT_BUILT = (
+    "the dashboard is not built: run `pnpm build` in dashboard/ and copy dist/ to "
+    "quarantix/api/static (or set AGENTWALL_DASHBOARD_DIR)"
+)
+
+
+def _serve_dashboard(app: FastAPI, settings: Settings) -> None:
+    """Serve the built single-page app, with every non-API path falling back to index.html.
+
+    Registered after all API routes, so API paths always win; unknown API paths stay JSON 404s.
+    Files are only ever served from inside the dashboard folder (no path traversal).
+    """
+    root = settings.dashboard_dir.resolve() if settings.dashboard_dir else None
+    index = root / "index.html" if root else None
+
+    @app.get("/{path:path}", include_in_schema=False)
+    async def dashboard(path: str) -> FileResponse:
+        if path == "v1" or path.startswith(("v1/", "healthz", "openapi.json", "docs")):
+            raise ApiError(404, "not_found", f"no API route for /{path}")
+        if root is None or index is None or not index.is_file():
+            raise ApiError(404, "not_found", _NOT_BUILT)
+        candidate = (root / path).resolve()
+        if path and candidate.is_file() and root in candidate.parents:
+            return FileResponse(candidate)
+        if "." in path.rsplit("/", 1)[-1]:  # a missing asset: never answer with the page
+            raise ApiError(404, "not_found", f"no file /{path}")
+        return FileResponse(index)
 
 
 def app_from_env() -> FastAPI:

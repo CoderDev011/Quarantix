@@ -1,10 +1,14 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter, NavLink, Outlet } from 'react-router'
+import { BRAND } from './brand.ts'
+import { LoginGate } from './components/LoginGate.tsx'
 
 // Routes from docs/features/F16 (arena) and plan.md Part 1 section 6 (console).
-// Each page is a placeholder until its feature lands; the brief named on the page holds the spec.
+// Pages not built yet are placeholders; the brief named on the page holds the spec.
+
+const Live = lazy(() => import('./pages/Live.tsx'))
 
 const consolePages = [
-  { path: '/', label: 'Live', brief: 'Live feed, agent cards, approvals inbox, provenance graph' },
   { path: '/policies', label: 'Policies', brief: 'Packs, Autopilot (F18), MCP pins (F14)' },
   { path: '/proof', label: 'Proof wall', brief: 'Real-World Proof Suite (docs/contracts.md section 12)' },
   { path: '/results', label: 'Results', brief: 'Red-team metrics with intervals (contracts section 16)' },
@@ -13,26 +17,30 @@ const consolePages = [
 
 function ConsoleLayout() {
   return (
-    <div className="min-h-screen">
-      <header className="flex items-center gap-6 border-b border-slate-800 px-6 py-3">
-        <span className="font-semibold tracking-wide">AgentWall</span>
-        <nav className="flex gap-4 text-sm">
-          {consolePages.map((page) => (
-            <NavLink
-              key={page.path}
-              to={page.path}
-              end
-              className={({ isActive }) => (isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200')}
-            >
-              {page.label}
-            </NavLink>
-          ))}
-        </nav>
-      </header>
-      <main className="p-6">
-        <Outlet />
-      </main>
-    </div>
+    <LoginGate>
+      <div className="min-h-screen">
+        <header className="flex h-12 items-center gap-6 border-b border-slate-800 px-6">
+          <span className="font-semibold tracking-wide">{BRAND}</span>
+          <nav className="flex gap-4 text-sm">
+            {[{ path: '/', label: 'Live' }, ...consolePages].map((page) => (
+              <NavLink
+                key={page.path}
+                to={page.path}
+                end
+                className={({ isActive }) => (isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200')}
+              >
+                {page.label}
+              </NavLink>
+            ))}
+          </nav>
+        </header>
+        <main className="px-6 pb-4 pt-2">
+          <Suspense fallback={<p className="text-slate-500">Loading…</p>}>
+            <Outlet />
+          </Suspense>
+        </main>
+      </div>
+    </LoginGate>
   )
 }
 
@@ -48,10 +56,13 @@ function Placeholder({ title, brief }: { title: string; brief: string }) {
 export const router = createBrowserRouter([
   {
     element: <ConsoleLayout />,
-    children: consolePages.map((page) => ({
-      path: page.path,
-      element: <Placeholder title={page.label} brief={page.brief} />,
-    })),
+    children: [
+      { path: '/', element: <Live /> },
+      ...consolePages.map((page) => ({
+        path: page.path,
+        element: <Placeholder title={page.label} brief={page.brief} />,
+      })),
+    ],
   },
   { path: '/arena', element: <Placeholder title="Break the Wall" brief="F16 phone page" /> },
   { path: '/arena/screen', element: <Placeholder title="Arena big screen" brief="F16 big screen" /> },

@@ -16,12 +16,21 @@ A firewall for AI agents. It tracks where every value came from and how sensitiv
 1. Run `bash scripts/check_tools.sh`. It must exit 0 (git, python3, uv, node, pnpm, docker).
 2. `uv sync` installs Python 3.12 and every dependency into `.venv`.
 3. `cp .env.example .env`, then fill in the keys.
-4. Run the checks CI runs:
-   - `uv run ruff check .`
-   - `uv run ruff format --check .`
-   - `uv run pyright`
-   - `uv run lint-imports`
-   - `uv run pytest -q`
+4. Run every check CI would run: `bash scripts/check.sh` (lint, format, types, import rules, tests). It must exit 0 before you commit.
+
+## Run it
+
+| Goal | Command (inside WSL, repo root) |
+|---|---|
+| Whole stack in Docker: API + console on http://localhost:8000 | `docker compose up -d --build` |
+| Also run the local model (demo laptop, 16 GB) | `docker compose --profile local-llm up -d` |
+| Is this machine demo-ready? | `bash scripts/doctor.sh` (add `--demo` on the demo laptop) |
+| Real-HTTP smoke test (local / built image) | `bash scripts/smoke_api.sh` · `SMOKE_IMAGE=quarantix:demo bash scripts/smoke_api.sh` |
+| The hour-6 engine demo, no LLM | `uv run python scripts/demo_core.py` |
+| Put demo events into a running console | `QX_API=http://127.0.0.1:8000 QX_AGENT_KEY=<support-agent key> uv run python scripts/demo_feed.py` |
+| Regenerate the console's API types | `bash scripts/gen_types.sh` |
+
+`.env` must set `AGENTWALL_ADMIN_TOKEN` (16+ characters) and `AGENTWALL_AGENT_KEYS` (`agent:key`, keys of 12+ characters). The server refuses to start without them.
 
 ## Layout
 

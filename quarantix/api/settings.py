@@ -5,7 +5,9 @@ from __future__ import annotations
 import os
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from pathlib import Path
 
+BUNDLED_DASHBOARD = Path(__file__).resolve().parent / "static"  # where the image copies dist/
 _PLACEHOLDERS = frozenset({"", "replace-me"})  # the values .env.example ships with
 
 
@@ -18,6 +20,7 @@ class Settings:
     online_window_s: float = 35.0
     flush_interval: float = 0.1
     max_body_bytes: int = 1_000_000
+    dashboard_dir: Path | None = None  # the built console (dashboard/dist); None = API only
 
     def __post_init__(self) -> None:
         if len(self.admin_token) < 16:
@@ -36,6 +39,9 @@ class Settings:
             database_url=env.get("AGENTWALL_DB", "sqlite+aiosqlite:///data/quarantix.db"),
             admin_token=token,
             agent_keys=parse_agent_keys(env.get("AGENTWALL_AGENT_KEYS", "")),
+            dashboard_dir=Path(env["AGENTWALL_DASHBOARD_DIR"])
+            if env.get("AGENTWALL_DASHBOARD_DIR")
+            else BUNDLED_DASHBOARD,
         )
 
 

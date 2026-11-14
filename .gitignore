@@ -15,7 +15,7 @@ __pycache__/
 # Node / dashboard
 node_modules/
 dashboard/dist/
-agentwall/api/static/
+quarantix/api/static/
 
 # Runtime data
 data/

@@ -1,0 +1,20 @@
+# Keep the build context small and never ship secrets or local state.
+.env
+.env.*
+!.env.example
+.git
+.venv
+**/__pycache__
+**/node_modules
+dashboard/dist
+quarantix/api/static
+data
+drafts
+reference
+.hypothesis
+.pytest_cache
+.ruff_cache
+.import_linter_cache
+tests
+docs
+plan*.md
