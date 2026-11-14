@@ -15,7 +15,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 from collections import deque
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, replace
 from typing import Final
 
@@ -67,6 +67,7 @@ class EventBus:
         self._running = False
         self.write_failures = 0
         self.dropped_events = 0
+        self.listeners: list[Callable[[Event], None]] = []  # in-process observers (Autopilot)
 
     # ---------------------------------------------------------------- lifecycle
 
@@ -102,6 +103,9 @@ class EventBus:
                 subscriber.queue.put_nowait(stamped)
             except asyncio.QueueFull:
                 self._drop(subscriber)
+        for listener in self.listeners:
+            with contextlib.suppress(Exception):  # an observer never breaks the event path
+                listener(stamped)
 
     def subscribe(
         self,

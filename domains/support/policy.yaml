@@ -1,0 +1,19 @@
+schema_version: 1
+pack: support
+applies_to: [support-agent]
+allowed_link_hosts: [company.example]
+origin: day-one
+rules:
+  - name: refunds-under-limit
+    tool: issue_refund
+    when:
+      - {arg: amount, integrity: trusted, value: {lte: 2000}}
+      - {arg: order_number, integrity: trusted}
+    decision: allow
+    reason: The refund uses the order's own number and amount, and is within the 2,000 limit.
+  - name: big-refunds-need-a-human
+    tool: issue_refund
+    when:
+      - {arg: amount, value: {gt: 2000}}
+    decision: ask
+    reason: Refunds above 2,000 need a person to approve them.

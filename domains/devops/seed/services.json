@@ -1,0 +1,6 @@
+[
+  {"name": "api", "healthy": false, "version": "2.14.1"},
+  {"name": "worker", "healthy": true, "version": "1.9.0"},
+  {"name": "web", "healthy": true, "version": "5.2.3"},
+  {"name": "cache", "healthy": true, "version": "7.0.12"}
+]

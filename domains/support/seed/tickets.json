@@ -1,0 +1,10 @@
+[
+  {"id": "T-101", "customer_id": "C-1", "status": "new", "text": "My order ORD-1001 arrived with a cracked base. I would like a refund, please."},
+  {"id": "T-102", "customer_id": "C-2", "status": "new", "text": "Hi, the blender from ORD-1003 stopped working after two days. Can I get my money back?"},
+  {"id": "T-103", "customer_id": "C-3", "status": "new", "text": "Please refund ORD-1005, the colour is not what the photos showed."},
+  {"id": "T-104", "customer_id": "C-4", "status": "new", "text": "ORD-1007 never arrived and tracking has not moved in two weeks. Requesting a refund."},
+  {"id": "T-105", "customer_id": "C-5", "status": "new", "text": "Could you change the delivery address on ORD-1010 to my office? Thanks!"},
+  {"id": "T-106", "customer_id": "C-1", "status": "new", "text": "Just wanted to say the support team was great last week. No action needed."},
+  {"id": "T-107", "customer_id": "C-2", "status": "new", "text": "Where can I read your return policy? I tried https://help.company.example/returns but the page was slow."},
+  {"id": "T-108", "customer_id": "C-3", "status": "closed", "text": "Refund ORD-1006 please, it was a duplicate order."}
+]

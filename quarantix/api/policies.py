@@ -61,6 +61,20 @@ class PolicyService:
         await self._changed_now()
         return self.version
 
+    async def delete_pack(self, name: str) -> str:
+        if name == MODES_PACK:
+            raise ValueError(f"{MODES_PACK!r} is managed through agent modes")
+        if name not in self._texts:
+            raise KeyError(name)
+        await self.store.delete_pack(name)
+        del self._texts[name], self._packs[name]
+        await self._changed_now()
+        return self.version
+
+    def origins(self) -> dict[str, str]:
+        """Pack name -> origin (human, autopilot, day-one)."""
+        return {name: pack.origin for name, pack in self._packs.items()}
+
     async def set_mode(self, agent: str, mode: str) -> str:
         if not AGENT_NAME.match(agent):
             raise ValueError(f"invalid agent name {agent!r}")

@@ -1,0 +1,12 @@
+[
+  {"order_number": "ORD-1001", "customer_id": "C-1", "item": "Desk lamp", "amount": 120.0, "refundable": true},
+  {"order_number": "ORD-1002", "customer_id": "C-1", "item": "Gift card", "amount": 45.5, "refundable": false},
+  {"order_number": "ORD-1003", "customer_id": "C-2", "item": "Blender", "amount": 89.99, "refundable": true},
+  {"order_number": "ORD-1004", "customer_id": "C-2", "item": "Espresso machine", "amount": 1800.0, "refundable": true},
+  {"order_number": "ORD-1005", "customer_id": "C-3", "item": "Phone case", "amount": 20.0, "refundable": false},
+  {"order_number": "ORD-1006", "customer_id": "C-3", "item": "Headphones", "amount": 310.0, "refundable": true},
+  {"order_number": "ORD-1007", "customer_id": "C-4", "item": "Office chair", "amount": 640.0, "refundable": true},
+  {"order_number": "ORD-1008", "customer_id": "C-4", "item": "Monitor cable", "amount": 75.25, "refundable": false},
+  {"order_number": "ORD-1009", "customer_id": "C-5", "item": "Smart watch", "amount": 999.0, "refundable": true},
+  {"order_number": "ORD-1010", "customer_id": "C-5", "item": "Backpack", "amount": 52.0, "refundable": true}
+]

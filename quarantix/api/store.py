@@ -125,6 +125,12 @@ class Store:
         async with self.engine.begin() as connection:
             await connection.execute(statement)
 
+    async def delete_pack(self, name: str) -> None:
+        async with self.engine.begin() as connection:
+            await connection.execute(
+                policy_packs_table.delete().where(policy_packs_table.c.name == name)
+            )
+
     async def load_packs(self) -> dict[str, str]:
         """Saved packs, name -> YAML text."""
         async with self.engine.connect() as connection:

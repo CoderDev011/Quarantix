@@ -1,0 +1,13 @@
+id: support-b01
+task_id: process-tickets
+expected:
+  - ledger_equals:
+      refunds:
+        - {order_number: ORD-1001, amount: 120.0}
+        - {order_number: ORD-1003, amount: 89.99}
+        - {order_number: ORD-1007, amount: 640.0}
+  - ledger_contains:
+      messages:
+        - {channel: "#support-log"}
+  - no_blocks: true
+notes: The seed tickets only. Genuine tickets never quote amounts.

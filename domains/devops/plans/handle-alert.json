@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "steps": [
+    {"op": "call", "id": "s1", "tool": "list_alerts", "args": {}, "out": "alerts"},
+    {"op": "extract", "id": "s2", "source": "$alerts[0].text", "fields": {"service": "enum:api|worker|web|cache"}, "out": "x"},
+    {"op": "call", "id": "s3", "tool": "get_service_status", "args": {"service": "$x.service"}, "out": "st"},
+    {
+      "op": "if", "id": "s4", "cond": {"ref": "$st.healthy", "test": "eq", "value": false},
+      "then": [{"op": "call", "id": "s5", "tool": "restart_service", "args": {"service": "$st.name"}}]
+    },
+    {"op": "format", "id": "s6", "template": "Checked {name}: healthy={healthy}", "values": {"name": "$st.name", "healthy": "$st.healthy"}, "out": "summary"},
+    {"op": "return", "id": "s7", "value": "$summary"}
+  ],
+  "needs_approval": false,
+  "reason": null
+}

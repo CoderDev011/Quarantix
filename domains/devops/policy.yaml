@@ -1,0 +1,30 @@
+schema_version: 1
+pack: devops
+applies_to: [devops-agent]
+allowed_link_hosts: [company.example]
+origin: day-one
+rules:
+  - name: restart-known-services
+    tool: restart_service
+    when:
+      - {arg: service, integrity: trusted, value: {in: [api, worker, web, cache]}}
+    decision: allow
+    reason: Restarting a known service named by our own systems is safe.
+  - name: no-deploys-from-untrusted-context
+    tool: deploy
+    when:
+      - {context: {integrity: untrusted}}
+    decision: block
+    reason: Untrusted content (alerts or logs) shaped this deploy.
+  - name: secrets-never-leave-shell
+    tool: run_shell
+    when:
+      - {arg: command, confidentiality: {gte: secret}}
+    decision: block
+    reason: A secret must never leave through a shell command.
+  - name: secrets-never-leave-deploy
+    tool: deploy
+    when:
+      - {arg: version, confidentiality: {gte: secret}}
+    decision: block
+    reason: A secret must never leave through a deploy.

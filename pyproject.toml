@@ -123,6 +123,26 @@ forbidden_modules = [
 ]
 
 [[tool.importlinter.contracts]]
+name = "Only the API uses the arena"
+type = "forbidden"
+source_modules = [
+    "quarantix.core",
+    "quarantix.engine",
+    "quarantix.guard",
+    "quarantix.sdk",
+    "quarantix.ai",
+    "quarantix.packs",
+    "quarantix.autopilot",
+]
+forbidden_modules = ["quarantix.arena"]
+
+[[tool.importlinter.contracts]]
+name = "The arena never imports the API"
+type = "forbidden"
+source_modules = ["quarantix.arena"]
+forbidden_modules = ["quarantix.api"]
+
+[[tool.importlinter.contracts]]
 name = "Nothing imports the API"
 type = "forbidden"
 source_modules = ["quarantix.ai", "quarantix.autopilot", "quarantix.packs"]

@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 BUNDLED_DASHBOARD = Path(__file__).resolve().parent / "static"  # where the image copies dist/
+REPO_DOMAINS = Path(__file__).resolve().parents[2] / "domains"
 _PLACEHOLDERS = frozenset({"", "replace-me"})  # the values .env.example ships with
 
 
@@ -21,6 +22,11 @@ class Settings:
     flush_interval: float = 0.1
     max_body_bytes: int = 1_000_000
     dashboard_dir: Path | None = None  # the built console (dashboard/dist); None = API only
+    domains_dir: Path | None = None  # domain packs; None = no arena, no domain policies
+    traces_dir: Path | None = None  # recorded tool-call traces for Autopilot proofs
+    arena_workers: int = 2
+    arena_queue_cap: int = 50
+    arena_player_interval_s: float = 20.0
 
     def __post_init__(self) -> None:
         if len(self.admin_token) < 16:
@@ -42,6 +48,13 @@ class Settings:
             dashboard_dir=Path(env["AGENTWALL_DASHBOARD_DIR"])
             if env.get("AGENTWALL_DASHBOARD_DIR")
             else BUNDLED_DASHBOARD,
+            domains_dir=Path(env.get("AGENTWALL_DOMAINS_DIR") or REPO_DOMAINS),
+            traces_dir=Path(env["AGENTWALL_TRACES_DIR"])
+            if env.get("AGENTWALL_TRACES_DIR")
+            else None,
+            arena_workers=int(env.get("ARENA_WORKERS", "2")),
+            arena_queue_cap=int(env.get("ARENA_QUEUE_CAP", "50")),
+            arena_player_interval_s=float(env.get("ARENA_SECONDS_BETWEEN_ATTEMPTS", "20")),
         )
 
 

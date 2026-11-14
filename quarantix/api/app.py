@@ -7,6 +7,7 @@ No `from __future__ import annotations` here: FastAPI resolves the route type
 hints at definition time, including the auth aliases local to `create_app`.
 """
 
+import json
 import time
 from collections import OrderedDict
 from collections.abc import AsyncIterator, Awaitable, Callable
@@ -19,14 +20,19 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from sse_starlette.sse import EventSourceResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from quarantix.api.arena_routes import arena_router
 from quarantix.api.auth import Credentials, bearer
+from quarantix.api.autopilot_routes import autopilot_router, breach_listener, build_autopilot
 from quarantix.api.bus import EventBus
 from quarantix.api.policies import PolicyService
 from quarantix.api.schemas import AgentsPage, ApprovalsPage, EventsPage, SessionIn
 from quarantix.api.settings import Settings
 from quarantix.api.sse import event_stream
 from quarantix.api.store import Store
-from quarantix.core.contracts import Event
+from quarantix.arena.service import ArenaError, ArenaService
+from quarantix.autopilot.drafter import Drafter
+from quarantix.autopilot.service import AutopilotError
+from quarantix.core.contracts import Decision, Event, ToolCallRequest
 from quarantix.core.redact import preview
 from quarantix.engine.approvals import ApprovalNotPending, InProcessApprovalBroker
 from quarantix.engine.policy import PolicyError
@@ -50,6 +56,20 @@ def _error(
     return JSONResponse(
         {"error": code, "message": message, "details": details or {}}, status_code=status
     )
+
+
+def _gunzip(data: bytes, limit: int) -> bytes:
+    """Decompress an upload, refusing anything that inflates past `limit` (zip bombs)."""
+    import zlib
+
+    inflater = zlib.decompressobj(16 + zlib.MAX_WBITS)
+    try:
+        out = inflater.decompress(data, limit + 1)
+    except zlib.error:
+        raise ApiError(400, "invalid_gzip", "the body is not valid gzip") from None
+    if len(out) > limit or inflater.unconsumed_tail:
+        raise ApiError(413, "too_large", "the decompressed body is too large")
+    return out
 
 
 def resume_point(*, since: int, last_event_id: str | None) -> int:
@@ -90,11 +110,26 @@ def create_app(settings: Settings) -> FastAPI:
         await policies.load()
         app.state.store, app.state.bus, app.state.policies = store, bus, policies
         app.state.approvals = InProcessApprovalBroker()
-        app.state.agents = AgentDirectory(credentials.agents)
         app.state.seen_ids = OrderedDict()
+        app.state.arena = None
+        app.state.autopilot = None
+        app.state.domains = {}
+        closers: list[Any] = []
+        if settings.domains_dir is not None and settings.domains_dir.is_dir():
+            app.state.domains = await _start_domains(app, settings, policies, bus, closers)
+        known = sorted({*credentials.agents, *(d.agent for d in app.state.domains.values())})
+        app.state.agents = AgentDirectory(known)
         try:
             yield
         finally:
+            arena: Any = getattr(app.state, "arena", None)
+            if arena is not None:
+                await arena.stop()
+            autopilot: Any = getattr(app.state, "autopilot", None)
+            if autopilot is not None:
+                await autopilot.stop()
+            for closer in closers:
+                await closer.close()
             await bus.stop()
             await store.close()
 
@@ -105,6 +140,14 @@ def create_app(settings: Settings) -> FastAPI:
     @app.exception_handler(ApiError)
     async def _api_error(_request: Request, exc: ApiError) -> JSONResponse:
         return _error(exc.status, exc.code, exc.message, exc.details)
+
+    @app.exception_handler(ArenaError)
+    async def _arena_error(_request: Request, exc: ArenaError) -> JSONResponse:
+        return _error(exc.status, exc.code, exc.message)
+
+    @app.exception_handler(AutopilotError)
+    async def _autopilot_error(_request: Request, exc: AutopilotError) -> JSONResponse:
+        return _error(exc.status, exc.code, exc.message)
 
     @app.exception_handler(StarletteHTTPException)
     async def _http_error(_request: Request, exc: StarletteHTTPException) -> JSONResponse:
@@ -160,8 +203,11 @@ def create_app(settings: Settings) -> FastAPI:
     async def upload_events(
         request: Request, agent: Annotated[str, Depends(require_agent)]
     ) -> dict[str, Any]:
+        raw = await request.body()
+        if request.headers.get("content-encoding", "").lower() == "gzip":
+            raw = _gunzip(raw, settings.max_body_bytes * 10)
         try:
-            body = await request.json()
+            body = json.loads(raw)
         except ValueError:
             raise ApiError(400, "invalid_json", "the body must be JSON") from None
         items = body.get("events") if isinstance(body, dict) else None
@@ -337,6 +383,39 @@ def create_app(settings: Settings) -> FastAPI:
             ]
         }
 
+    @app.post("/v1/approvals", status_code=201)
+    async def open_approval(
+        request: Request, agent: Annotated[str, Depends(require_agent)]
+    ) -> dict[str, Any]:
+        """An SDK asks a person (contracts 5 and 6 shapes). The console shows it at once."""
+        body = await request.json()
+        try:
+            call = ToolCallRequest.from_wire(body["request"])
+            decision = Decision.from_wire(body["decision"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ApiError(422, "invalid_request", f"invalid approval: {str(exc)[:200]}") from None
+        if call.agent != agent:
+            raise ApiError(403, "forbidden", "an agent can only ask for its own calls")
+        approval_id = await request.app.state.approvals.open(call, decision)
+        return {"id": approval_id}
+
+    @app.get("/v1/approvals/{approval_id}/status")
+    async def approval_status(
+        request: Request,
+        approval_id: str,
+        agent: Annotated[str, Depends(require_agent)],
+        wait: Annotated[float, Query(ge=0)] = 25.0,
+    ) -> dict[str, Any]:
+        try:
+            result = await request.app.state.approvals.poll(
+                approval_id, min(wait, settings.long_poll_max_s)
+            )
+        except ApprovalNotPending:
+            raise ApiError(404, "not_found", "no such approval") from None
+        if result is None:
+            return {"id": approval_id, "status": "pending"}
+        return {"id": approval_id, "status": result.status, "scope": result.scope}
+
     @app.post("/v1/approvals/{approval_id}/resolve", dependencies=[Admin])
     async def resolve(request: Request, approval_id: str) -> dict[str, Any]:
         body = await request.json()
@@ -375,10 +454,64 @@ def create_app(settings: Settings) -> FastAPI:
         response.delete_cookie(ADMIN_COOKIE, path="/")
         return response
 
+    # ---------------------------------------------------------------- arena (F15)
+
+    app.include_router(arena_router(require_admin))
+    app.include_router(autopilot_router(require_admin))
+
     # ---------------------------------------------------------------- the built dashboard (last!)
 
     _serve_dashboard(app, settings)
     return app
+
+
+async def _start_domains(
+    app: FastAPI, settings: Settings, policies: PolicyService, bus: EventBus, closers: list[Any]
+) -> dict[str, Any]:
+    """Load the domain packs, seed their policies once, and start the arena on them."""
+    from quarantix.api.runtime import AttackerLinks, build_models
+    from quarantix.packs.loader import load_all
+
+    assert settings.domains_dir is not None
+    domains = load_all(settings.domains_dir)
+    texts = policies.texts()
+    for domain in domains.values():
+        if domain.policy.name not in texts:  # first start: the shipped (day-one) policy
+            await policies.put_pack(domain.policy.name, domain.day_one_text)
+    if not domains:
+        return domains
+    models = build_models()
+    links = AttackerLinks()
+    closers.extend([models, links])
+    arena = ArenaService(
+        domains,
+        brains=models.brains,
+        policy=lambda: policies.bundle,
+        events=bus,
+        link_factory=links,
+        economy=lambda: models.meter.economy,
+        workers=settings.arena_workers,
+        queue_cap=settings.arena_queue_cap,
+        player_interval_s=settings.arena_player_interval_s,
+    )
+    await arena.start()
+    app.state.arena, app.state.models = arena, models
+
+    drafter_llm, drafter_model = models.drafter or (None, "none")
+    autopilot = build_autopilot(
+        domains=domains,
+        policies=policies,
+        store=bus.store,
+        events=bus,
+        drafter=Drafter(drafter_llm, drafter_model, budget_ok=lambda: not models.meter.economy),
+        traces_dir=settings.traces_dir or (settings.domains_dir.parent / "redteam" / "traces"),
+        arena=arena,
+    )
+    await autopilot.start()
+    bus.listeners.append(autopilot.observe)
+    arena.on_breach = breach_listener(autopilot, arena, policies)
+    app.state.autopilot = autopilot
+    return domains
 
 
 _NOT_BUILT = (

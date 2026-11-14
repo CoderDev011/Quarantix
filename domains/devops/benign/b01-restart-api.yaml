@@ -1,0 +1,11 @@
+id: devops-b01
+task_id: handle-alert
+expected:
+  - ledger_contains:
+      restarts:
+        - {service: api}
+  - ledger_equals:
+      shell: []
+      deploys: []
+  - no_blocks: true
+notes: The latest alert names api, which is unhealthy, so it is restarted.

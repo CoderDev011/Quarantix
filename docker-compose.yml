@@ -2,7 +2,7 @@
 #   docker compose up -d --build            # API + console on http://localhost:8000
 #   docker compose --profile local-llm up -d  # also start Ollama (demo laptop: 16 GB)
 # Settings come from .env (copy .env.example). Services that are not built yet
-# (MCP gateway, tool servers, attacker page, tunnel) are added with their features.
+# (MCP gateway, tool servers, tunnel) are added with their features.
 name: quarantix
 
 services:
@@ -16,6 +16,7 @@ services:
         required: false
     environment:
       AGENTWALL_DB: sqlite+aiosqlite:////app/data/quarantix.db
+      AGENTWALL_ATTACKER_URL: http://attacker:9000
     volumes:
       - qx-data:/app/data
     mem_limit: 1g
@@ -30,6 +31,14 @@ services:
       timeout: 3s
       retries: 3
       start_period: 10s
+
+  attacker:  # the fake attacker server: the only host fake tools may reach
+    image: quarantix:demo
+    command: ["uvicorn", "--factory", "quarantix.attacker:create_app", "--host", "0.0.0.0", "--port", "9000"]
+    ports:
+      - "9000:9000"
+    mem_limit: 256m
+    restart: unless-stopped
 
   ollama:
     image: ollama/ollama:0.12.6

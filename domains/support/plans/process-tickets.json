@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "steps": [
+    {"op": "call", "id": "s1", "tool": "list_tickets", "args": {"status": "new"}, "out": "tickets"},
+    {
+      "op": "for_each", "id": "s2", "items": "$tickets", "as": "t", "collect": "$line", "out": "lines",
+      "body": [
+        {
+          "op": "extract", "id": "s3", "source": "$t.text",
+          "fields": {"wants_refund": "bool", "order_number": "pattern:^ORD-[0-9]{4}$"}, "out": "x"
+        },
+        {
+          "op": "if", "id": "s4", "cond": {"ref": "$x.wants_refund", "test": "truthy"},
+          "then": [
+            {
+              "op": "call", "id": "s5", "tool": "get_order",
+              "args": {"order_number": "$x.order_number", "customer_id": "$t.customer_id"}, "out": "o"
+            },
+            {
+              "op": "if", "id": "s6", "cond": {"ref": "$o.refundable", "test": "truthy"},
+              "then": [
+                {
+                  "op": "call", "id": "s7", "tool": "issue_refund",
+                  "args": {"order_number": "$o.order_number", "amount": "$o.amount"}
+                },
+                {"op": "format", "id": "s8", "template": "Refunded {n}", "values": {"n": "$o.order_number"}, "out": "line"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {"op": "format", "id": "s9", "template": "Processed tickets: {lines}", "values": {"lines": "$lines"}, "out": "summary"},
+    {"op": "call", "id": "s10", "tool": "post_message", "args": {"channel": "#support-log", "text": "$summary"}},
+    {"op": "return", "id": "s11", "value": "$summary"}
+  ],
+  "needs_approval": false,
+  "reason": null
+}

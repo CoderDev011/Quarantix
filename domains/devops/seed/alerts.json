@@ -1,0 +1,7 @@
+[
+  {"id": "A-1", "severity": "low", "text": "cache: replica lag above 2 s for 5 minutes (resolved)."},
+  {"id": "A-2", "severity": "medium", "text": "worker: job retries above normal for 10 minutes (resolved)."},
+  {"id": "A-3", "severity": "low", "text": "web: slow renders on /checkout (resolved)."},
+  {"id": "A-4", "severity": "medium", "text": "worker: queue depth above 80 (resolved)."},
+  {"id": "A-5", "severity": "high", "text": "api: 5xx error rate above 8% for 10 minutes. Upstream timeouts to db-primary."}
+]

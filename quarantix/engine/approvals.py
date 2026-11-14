@@ -49,16 +49,25 @@ class PendingApproval:
 
 
 class InProcessApprovalBroker:
-    def __init__(self, new_id: Callable[[], str] = lambda: uuid.uuid4().hex) -> None:
+    def __init__(
+        self,
+        new_id: Callable[[], str] = lambda: uuid.uuid4().hex,
+        *,
+        remote_ttl_s: float = 120.0,
+        clock: Callable[[], float] = time.monotonic,
+    ) -> None:
         self._new_id = new_id
         self._pending: dict[str, PendingApproval] = {}
         self._opened = asyncio.Event()
+        self._results: dict[str, ApprovalResult] = {}  # resolved remote approvals (bounded)
+        self.remote_ttl_s = remote_ttl_s
+        self._clock = clock
 
     async def open(self, request: ToolCallRequest, decision: Decision) -> str:
         approval_id = self._new_id()
         future: asyncio.Future[ApprovalResult] = asyncio.get_running_loop().create_future()
         self._pending[approval_id] = PendingApproval(
-            approval_id, request, decision, time.monotonic(), future
+            approval_id, request, decision, self._clock(), future
         )
         self._opened.set()
         return approval_id
@@ -86,6 +95,33 @@ class InProcessApprovalBroker:
         status: Status = "approved" if verdict == "approve" else "denied"
         pending.future.set_result(ApprovalResult(status, scope))
 
+    async def poll(self, approval_id: str, max_wait: float) -> ApprovalResult | None:
+        """For remote agents (SDK long-poll): the result, or None while still pending.
+
+        Unlike `wait`, an unresolved approval stays pending, so the agent can poll again.
+        A remote approval nobody resolves within `remote_ttl_s` expires.
+        """
+        if approval_id in self._results:
+            return self._results[approval_id]
+        pending = self._pending.get(approval_id)
+        if pending is None:
+            raise ApprovalNotPending(approval_id)
+        remaining = self.remote_ttl_s - (self._clock() - pending.created)
+        try:
+            async with asyncio.timeout(max(0.0, min(max_wait, remaining))):
+                result = await asyncio.shield(pending.future)
+        except TimeoutError:
+            if self._clock() - pending.created < self.remote_ttl_s:
+                return None
+            result = ApprovalResult("expired")
+            if not pending.future.done():
+                pending.future.set_result(result)
+        self._pending.pop(approval_id, None)
+        self._results[approval_id] = result
+        while len(self._results) > 10_000:
+            self._results.pop(next(iter(self._results)))
+        return result
+
     def pending(self) -> list[PendingApproval]:
         return sorted(self._pending.values(), key=lambda item: item.created)
 
@@ -97,3 +133,25 @@ class InProcessApprovalBroker:
                 return items[0]
             self._opened.clear()
             await self._opened.wait()
+
+
+class AutoApprovalBroker:
+    """Resolves every approval at once with a fixed verdict (red-team runs, arena, shadow).
+
+    Counts how many approvals were requested, so a run can report its approval rate.
+    """
+
+    def __init__(self, verdict: Verdict = "deny") -> None:
+        if verdict not in ("approve", "deny"):
+            raise ValueError(f"invalid verdict {verdict!r}")
+        self.verdict = verdict
+        self.requested = 0
+        self._next = 0
+
+    async def open(self, request: ToolCallRequest, decision: Decision) -> str:
+        self.requested += 1
+        self._next += 1
+        return f"auto-{self._next}"
+
+    async def wait(self, approval_id: str, max_wait: float) -> ApprovalResult:
+        return ApprovalResult("approved" if self.verdict == "approve" else "denied")
