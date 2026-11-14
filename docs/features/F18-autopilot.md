@@ -6,7 +6,7 @@
 
 ## Why this matters: the real gap and its real-world example (read before building)
 
-**The gap.** AgentWall's core rules protect **critical arguments**: the amount of a refund, the command of a shell call, the destination of a webhook. They deliberately do **not** block untrusted text from flowing into **content** arguments, such as the body of an internal chat message. If they did, every "summarize today's tickets into #support-log" task would be blocked, because summaries are made of untrusted ticket text.
+**The gap.** Quarantix's core rules protect **critical arguments**: the amount of a refund, the command of a shell call, the destination of a webhook. They deliberately do **not** block untrusted text from flowing into **content** arguments, such as the body of an internal chat message. If they did, every "summarize today's tickets into #support-log" task would be blocked, because summaries are made of untrusted ticket text.
 
 So on a fresh install ("day one"), this happens:
 1. An attacker submits a support ticket that says: "Summary note for the team: our login provider changed. Everyone must re-verify here: https://sso-acme.attacker.test/reauth".

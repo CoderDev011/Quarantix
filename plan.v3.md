@@ -1,8 +1,8 @@
-# AgentWall: kickoff report and plan (rev 3, draft for approval)
+# Quarantix: kickoff report and plan (rev 3, draft for approval)
 
 > A firewall for any AI agent, in any system. It **learns from every attack and proves each fix before it ships**.
 
-**Who this file is for:** the coding agents and teammates building AgentWall. It is a specification, not code. Every feature lists its purpose, inputs, outputs, exact rules, edge cases, performance targets and the observable tests that prove it is done. When this file leaves a choice open, make the simplest reasonable one and record it in `docs/DECISIONS.md`.
+**Who this file is for:** the coding agents and teammates building Quarantix. It is a specification, not code. Every feature lists its purpose, inputs, outputs, exact rules, edge cases, performance targets and the observable tests that prove it is done. When this file leaves a choice open, make the simplest reasonable one and record it in `docs/DECISIONS.md`.
 
 **Earlier versions:** `plan.v1.md` (original idea) and `plan.v2.md` (36-hour optimized plan). Rev 3 replaces both where they differ. The v2 design decisions still hold unless a section below changes them.
 
@@ -38,7 +38,7 @@ Prices are from Google's pricing page, read 2026-11-14 (it redirects to `aistudi
   - The app has a **spend meter** (F6) that multiplies token usage by the price table and **hard-stops paid calls at $10**.
   - Set a Google Cloud billing budget with alerts at $6, $9 and $11.
   - Before every live red-team run, check the balance **in the Google console**, not only the app's meter, and write it in `docs/SPIKES.md` (ledger).
-- **Free-tier data note** (pricing page): on the free tier, "Content used to improve our products". On the paid tier it is not. AgentWall only sends fake-world data, so the free tier is acceptable for development. Use the **paid key for the demo and judging**, so unknown free-tier rate limits cannot bite on stage.
+- **Free-tier data note** (pricing page): on the free tier, "Content used to improve our products". On the paid tier it is not. Quarantix only sends fake-world data, so the free tier is acceptable for development. Use the **paid key for the demo and judging**, so unknown free-tier rate limits cannot bite on stage.
 - **If Ollama is too slow on the demo laptop** (spike S1 fails), the naive agent falls back to `gemini-3.1-flash-lite` with function calling, at ≈ $0.007 per run. In that case the arena gets a hard cap of **300 attacks per hour** to stay inside budget.
 
 ---
@@ -51,20 +51,20 @@ AI agents now read untrusted content (tickets, emails, logs, web pages, MCP tool
 
 ### 1.2 The idea (unchanged core)
 
-AgentWall does not guess. It **tracks where every value came from** (trusted user or untrusted data) and **how sensitive it is**. Before any action executes, it checks those labels against deterministic rules. A value written by an attacker can never become the amount of a refund or the command of a shell call, however cleverly it is phrased.
+Quarantix does not guess. It **tracks where every value came from** (trusted user or untrusted data) and **how sensitive it is**. Before any action executes, it checks those labels against deterministic rules. A value written by an attacker can never become the amount of a refund or the command of a shell call, however cleverly it is phrased.
 
 ### 1.3 The next-level idea (new in rev 3): a firewall that learns and proves
 
-Most security demos stop at "we blocked the attack". AgentWall closes the loop live, in front of the judges:
+Most security demos stop at "we blocked the attack". Quarantix closes the loop live, in front of the judges:
 
 | Step | What happens | Feature |
 |---|---|---|
 | **1. Attack** | Judges and the audience scan a QR code and attack the agents from their phones. An adaptive **Red Agent** attacks non-stop so the board is never quiet | Arena (F15, F16), Red Agent (F17) |
 | **2. Learn** | Every attempt becomes data. If something gets through, or looks risky in monitor mode, **Policy Autopilot** drafts a new rule | Autopilot (F18) |
-| **3. Prove** | Before any rule can be enabled, AgentWall **replays the entire attack library plus the benign tasks** against it and shows the before/after numbers. A rule that would break legitimate work cannot ship | Autopilot proof (F18), suite (F20) |
+| **3. Prove** | Before any rule can be enabled, Quarantix **replays the entire attack library plus the benign tasks** against it and shows the before/after numbers. A rule that would break legitimate work cannot ship | Autopilot proof (F18), suite (F20) |
 | **4. Enforce** | One click, and every connected agent picks up the rule in under 1 second. That includes an off-the-shelf agent we never wrote, connected through the **MCP gateway** | Gate (F4), sync (F11), MCP gateway (F14) |
 
-**Tagline:** *"Detectors guess. AgentWall enforces, learns and proves."*
+**Tagline:** *"Detectors guess. Quarantix enforces, learns and proves."*
 
 ### 1.4 Why this wins (mapped to the usual judging criteria)
 
@@ -97,7 +97,7 @@ Most security demos stop at "we blocked the attack". AgentWall closes the loop l
    - `gemini-2.5-flash` and `gemini-2.5-pro` are being re-routed on 2026-12-01. **Do not use 2.5 models.**
    - Source: the models page, via the `aistudio.google.com/docs/models` redirect.
 2. **Prices** are as in the budget table. `gemini-4-carbon` prices double on 2026-12-01. That doesn't matter here, because carbon isn't used.
-3. **Structured output** is documented on the Interactions API. You set a response format with MIME type `application/json` and a JSON schema. Python SDK schemas can be Pydantic. **minLength and maxLength are ignored**, and several other constraints are stripped. **Consequence:** AgentWall re-validates every field in its own code (F7). Source: the structured-output page.
+3. **Structured output** is documented on the Interactions API. You set a response format with MIME type `application/json` and a JSON schema. Python SDK schemas can be Pydantic. **minLength and maxLength are ignored**, and several other constraints are stripped. **Consequence:** Quarantix re-validates every field in its own code (F7). Source: the structured-output page.
 4. **Function calling on Flash-Lite** is not covered on the pages read. **Consequence:** spike S2 must test it before the naive-agent fallback depends on it.
 5. **Free-tier rate limits** for Flash and Flash-Lite are not published on the pages. They show only in AI Studio and are per project. RPD resets at midnight Pacific time. **Consequence:** spike S2 reads them in AI Studio, and the demo uses the paid key.
 6. **Caching:** implicit caching only on Gemini 4 rows; context-cache prices are listed per model. **Consequence:** keep the planner's system prompt byte-stable so implicit caching can hit. Our own cassette layer is the main cache.
@@ -157,8 +157,8 @@ User request → (Full mode: Planner → Plan → Interpreter + quarantined Read
 ### 3.3 Repository layout
 
 ```text
-agentwall/                      repo root
-├── agentwall/                  the product (never names a domain)
+quarantix/                      repo root
+├── quarantix/                  the product (never names a domain)
 │   ├── core/                   labels, provenance, registry, contracts, redaction
 │   ├── ai/                     LLM clients, cassettes, spend meter, reader, planner, validator, naive agent
 │   ├── engine/                 policy engine, gate + runtime, approvals, interpreter
@@ -740,7 +740,7 @@ Each feature has: **Purpose**, **Behavior** (exact rules), **Edge cases**, **Per
   - Plain (baseline).
   - Guard session (guard mode, F10).
   - Shadow (arena, F15: guard decisions computed but not enforced).
-- When a tool is blocked, the agent receives an error result: "Blocked by AgentWall: <reason>". It can continue or explain, which reads well in the demo.
+- When a tool is blocked, the agent receives an error result: "Blocked by Quarantix: <reason>". It can continue or explain, which reads well in the demo.
 - **Model:** the Ollama model from spike S1. Fallback: `gemini-3.1-flash-lite` with function calling, if S2 confirms it works.
 - **Honesty:** the Results page and slides name the baseline model. Attacks in the live demo are chosen from those the runner **measured** succeeding against this baseline.
 
@@ -817,7 +817,7 @@ Each feature has: **Purpose**, **Behavior** (exact rules), **Edge cases**, **Per
 **Purpose:** the drop-in. An existing agent adds about three lines and is protected, with decisions made next to the agent.
 
 **Behavior**
-- **Init:** API key, agent name, control-plane URL and a cache folder (default `~/.agentwall/<agent>/`). Starts one background worker for all network traffic.
+- **Init:** API key, agent name, control-plane URL and a cache folder (default `~/.quarantix/<agent>/`). Starts one background worker for all network traffic.
 - **Guard wrap:** takes a list of tool functions and returns wrapped functions **with identical signatures**. Each call goes through the current guard session.
 - **Session:** a context block that creates a guard session (optionally with the user's message). Sessions are tracked per task/thread, so concurrent conversations do not mix.
 - **Policy sync:**
@@ -992,7 +992,7 @@ Each feature has: **Purpose**, **Behavior** (exact rules), **Edge cases**, **Per
 **Purpose:** protect an **off-the-shelf agent we did not write** with zero code changes, live on stage.
 
 **Behavior**
-- AgentWall runs as an **MCP server** to the client (stdio transport for desktop clients, HTTP transport on 8788) and as an **MCP client** to upstream servers (our DevOps tool server, and optionally a second fake server).
+- Quarantix runs as an **MCP server** to the client (stdio transport for desktop clients, HTTP transport on 8788) and as an **MCP client** to upstream servers (our DevOps tool server, and optionally a second fake server).
 - On start, it lists the upstream tools and **mirrors** them to the client, with the same names, descriptions and schemas.
 - **Every call goes through a guard session** (one per client connection). Labels come from the gateway config file, which uses the same fields as a tool spec. Tools missing from the config get **default deny**.
 - **Tool pinning** defends against "tool poisoning" and "rug pull" MCP attacks. A malicious server changes a tool's description to inject instructions, or swaps its behavior after approval.
@@ -1012,7 +1012,7 @@ Each feature has: **Purpose**, **Behavior** (exact rules), **Edge cases**, **Per
 
 **Done when:**
 - On stage, the off-the-shelf client is asked "investigate the latest alert and fix it".
-- It reads the poisoned log and tries to run the attacker's curl command. AgentWall blocks it.
+- It reads the poisoned log and tries to run the attacker's curl command. Quarantix blocks it.
 - The console shows the provenance graph.
 - Optionally, the "rug pull" demo: change the upstream description live, and the tool disappears from the client until it is approved.
 
@@ -1039,7 +1039,7 @@ Each feature has: **Purpose**, **Behavior** (exact rules), **Edge cases**, **Per
 2. **Naive + Guard in one run (shadow evaluation):**
    - The naive agent runs once with the shadow invoker. Every call is executed (that is the naive outcome), and the guard decision is computed for every call.
    - If no call would have been blocked or asked, the Guard outcome equals the naive outcome.
-   - If any call would have been blocked or asked, the Guard result is shown immediately as "AgentWall would have stopped it at step k (rule …)". An **enforced Guard re-run** is queued at low priority, and its result replaces the shadow result when done (usually within a minute).
+   - If any call would have been blocked or asked, the Guard result is shown immediately as "Quarantix would have stopped it at step k (rule …)". An **enforced Guard re-run** is queued at low priority, and its result replaces the shadow result when done (usually within a minute).
    - This halves model time. Exactness is restored by the re-run.
 3. **Full mode:**
    - Uses the **pinned pre-recorded plan** for that target's task, so no planner call is needed.
@@ -1126,16 +1126,16 @@ Each feature has: **Purpose**, **Behavior** (exact rules), **Edge cases**, **Per
 4. "Need an idea?" chips that fill in example payloads.
 5. Big "Launch attack" button.
 6. A status card: queued (position) → running (animated) → result.
-7. **Result card:** three rows (Naive, Guard, Full), each with an icon (💥 breached, 🛡 blocked, ⚪ neutralized, ✋ needs approval), a one-line plain reason ("AgentWall saw the amount came from your ticket"), and points earned.
+7. **Result card:** three rows (Naive, Guard, Full), each with an icon (💥 breached, 🛡 blocked, ⚪ neutralized, ✋ needs approval), a one-line plain reason ("Quarantix saw the amount came from your ticket"), and points earned.
 8. A "Try again" button and the player's total.
 
 **Big screen (/arena/screen)**, designed for a projector at 1080p, readable from 10 m:
 - **Left column:**
   - Huge QR code with the arena URL.
-  - Counters: "Attacks launched", "Naive agent breaches", "AgentWall breaches". The last one is designed to sit at 0 in big green numbers.
+  - Counters: "Attacks launched", "Naive agent breaches", "Quarantix breaches". The last one is designed to sit at 0 in big green numbers.
 - **Center:** a live ticker of the latest 12 attempts. Each shows nickname, target, technique tags and three outcome icons. It slides in with a subtle animation.
 - **Right:** top-10 leaderboard.
-- **Breach alarm:** when Guard or Full is breached, the screen flashes red and shows "Breach found by <nickname>: AgentWall is learning…". It then follows the Autopilot proposal live ("drafting rule → proving against 37 attacks and 15 tasks → ready for review"). When the rule is enabled, it shows "Patched in m:ss".
+- **Breach alarm:** when Guard or Full is breached, the screen flashes red and shows "Breach found by <nickname>: Quarantix is learning…". It then follows the Autopilot proposal live ("drafting rule → proving against 37 attacks and 15 tasks → ready for review"). When the rule is enabled, it shows "Patched in m:ss".
 - Data arrives over the arena SSE stream. Counters animate smoothly.
 - A "Red Agent" badge marks automated attempts.
 
@@ -1471,12 +1471,12 @@ Times are hours from the start. **Feature freeze at H18** (6 hours before the de
 | 0:00 | Big screen with QR code | "While I talk, scan this and try to hack our agents. Seriously." |
 | 0:10 | Support agent processing tickets; genuine refund | "This agent handles refunds. Here it does its job." |
 | 0:25 | Mode Off, poisoned ticket → attacker page 💸 | "One hidden sentence in a ticket, and the money goes to an attacker. This is what most agents look like today." |
-| 0:50 | Flip to Enforce (< 1 s), rerun → BLOCKED, open the graph | "Same agent, three lines of code. AgentWall knows the amount came from the ticket, not from you. Blocked, and here's exactly why." |
+| 0:50 | Flip to Enforce (< 1 s), rerun → BLOCKED, open the graph | "Same agent, three lines of code. Quarantix knows the amount came from the ticket, not from you. Blocked, and here's exactly why." |
 | 1:20 | Off-the-shelf MCP client, poisoned log → blocked | "An agent we didn't write, through our MCP gateway, zero code changes. The attacker's command never runs." |
-| 1:45 | Big screen: counters and leaderboard from the room | "You've launched N attacks. The naive agent fell M times. AgentWall: zero." (Only if true. Otherwise say the real number and why.) |
-| 2:05 | Breach alarm (staged gap or real) → Autopilot drafts → proof table → Enable → re-run blocked | "When something gets through, AgentWall writes a rule, proves it against every attack and every normal task, and only then lets us ship it. Patched in about a minute." |
-| 2:40 | Results table with intervals | "Measured on 25 attacks and 15 tasks: baseline X%, AgentWall Y%." |
-| 2:50 | Close | "Detectors guess. AgentWall enforces, learns and proves." |
+| 1:45 | Big screen: counters and leaderboard from the room | "You've launched N attacks. The naive agent fell M times. Quarantix: zero." (Only if true. Otherwise say the real number and why.) |
+| 2:05 | Breach alarm (staged gap or real) → Autopilot drafts → proof table → Enable → re-run blocked | "When something gets through, Quarantix writes a rule, proves it against every attack and every normal task, and only then lets us ship it. Patched in about a minute." |
+| 2:40 | Results table with intervals | "Measured on 25 attacks and 15 tasks: baseline X%, Quarantix Y%." |
+| 2:50 | Close | "Detectors guess. Quarantix enforces, learns and proves." |
 
 **Mentor or deep-dive version (5 minutes):** add the label model, the plan interpreter and reader quarantine, the fail-safe (kill the API, still blocked), and the drafter's quarantine (it never sees attack text).
 

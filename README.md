@@ -1,4 +1,4 @@
-# AgentWall
+# Quarantix
 
 A firewall for AI agents. It tracks where every value came from and how sensitive it is, then checks each tool call against deterministic rules before the action runs. LLMs plan and read; code decides.
 
