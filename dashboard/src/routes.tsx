@@ -15,7 +15,7 @@ function ConsoleLayout() {
   return (
     <div className="min-h-screen">
       <header className="flex items-center gap-6 border-b border-slate-800 px-6 py-3">
-        <span className="font-semibold tracking-wide">Quarantix</span>
+        <span className="font-semibold tracking-wide">AgentWall</span>
         <nav className="flex gap-4 text-sm">
           {consolePages.map((page) => (
             <NavLink

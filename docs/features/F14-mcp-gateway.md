@@ -13,9 +13,9 @@ Invariant Labs published two attacks on this design on 2025-04-01 (source: `docs
 
 Invariant's own recommendation is exactly what we build: "Clients should pin the version of the MCP server and its tools… by using a hash or checksum to verify the integrity of the tool description before executing it."
 
-A second Invariant report (2025-05-26, I-3) showed a malicious **public GitHub issue** hijacking an agent through the official GitHub MCP server, so that it copied private-repository data into a public pull request. Our code-hosting replay (RW-02) recreates this against fake repositories, and Quarantix's C2 rule blocks it.
+A second Invariant report (2025-05-26, I-3) showed a malicious **public GitHub issue** hijacking an agent through the official GitHub MCP server, so that it copied private-repository data into a public pull request. Our code-hosting replay (RW-02) recreates this against fake repositories, and AgentWall's C2 rule blocks it.
 
-**Why Quarantix's answer is stronger than a warning dialog:**
+**Why AgentWall's answer is stronger than a warning dialog:**
 1. Pinning is enforced in the gateway, so it works with **any** client, including ones that never ask.
 2. Even a poisoned description cannot make a secret flow to an external audience: C2 blocks it on the data, not on the wording.
 3. Unknown tools are default deny.

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install the user-level dev tools Quarantix needs (inside WSL, no sudo):
+# Install the user-level dev tools AgentWall needs (inside WSL, no sudo):
 #   uv   - Python package and version manager (official Astral installer)
 #   pnpm - major 10, via npm into ~/.local (corepack failed to load pnpm 12)
 # Safe to re-run: skips tools that are already present.

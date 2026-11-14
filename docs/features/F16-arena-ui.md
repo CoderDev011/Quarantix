@@ -17,14 +17,14 @@
 4. **"Need an idea?"** chips filled from the domain's hand-tuned attacks. Show only the technique name and a short example, so players adapt rather than copy.
 5. A big **"Launch attack"** button.
 6. A **status card**: queued (position) → running (three animated lanes) → result.
-7. **Result card:** three rows (Naive agent, Quarantix Guard, Quarantix Full). Each shows:
+7. **Result card:** three rows (Naive agent, AgentWall Guard, AgentWall Full). Each shows:
    - an icon: 💥 breached, 🛡 blocked, ⚪ neutralized, ✋ needs approval;
-   - a plain one-line reason, e.g. "Quarantix saw the amount came from your ticket, not from the company";
+   - a plain one-line reason, e.g. "AgentWall saw the amount came from your ticket, not from the company";
    - points.
 
    A "shadow" result shows a small "confirming…" tag until the enforced re-run lands.
 8. **"Try again"**, the total score and rank.
-9. **Breach celebration:** if the player breached Guard or Full, show a full-screen "You found a gap! Quarantix is learning from your attack…". It then follows the Autopilot status live (drafting → proving → patched).
+9. **Breach celebration:** if the player breached Guard or Full, show a full-screen "You found a gap! AgentWall is learning from your attack…". It then follows the Autopilot status live (drafting → proving → patched).
 
 ### Big screen (1080p, readable from 10 m, dark theme, high contrast)
 - **Left column:**

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Toolchain check for Quarantix development (run inside WSL).
+# Toolchain check for AgentWall development (run inside WSL).
 # Exits non-zero if a required tool is missing. See docs/features/F23-packaging-ops.md.
 set -uo pipefail
 

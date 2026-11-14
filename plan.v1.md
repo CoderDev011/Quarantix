@@ -1,7 +1,7 @@
-# Quarantix — Implementation Plan
+# AgentWall — Implementation Plan
 
 > A firewall for any AI agent, in any system.
-> This plan takes Quarantix from an empty repo to (1) a demo that can win the hackathon and (2) a codebase that grows into a production product without a rewrite.
+> This plan takes AgentWall from an empty repo to (1) a demo that can win the hackathon and (2) a codebase that grows into a production product without a rewrite.
 
 ---
 
@@ -61,8 +61,8 @@
 ## 3. Repository layout (create in Phase 0)
 
 ```text
-quarantix/                      # repo root
-├── quarantix/                  # Python package (engine + API + SDK)
+agentwall/                      # repo root
+├── agentwall/                  # Python package (engine + API + SDK)
 │   ├── core/
 │   │   ├── labels.py           # Label, Labeled, join()                    (B)
 │   │   ├── registry.py         # ToolSpec, @tool decorator, registry        (A)
@@ -135,7 +135,7 @@ quarantix/                      # repo root
 - [ ] (C) Create repo, `pyproject.toml` (Python 3.11), `ruff`, `pytest`, `pre-commit`.
 - [ ] (C) GitHub Actions: lint + `pytest` on every push.
 - [ ] (C) `dashboard/` scaffold: React + Vite + TypeScript + Tailwind.
-- [ ] (C) `.env.example` with `PLANNER_API_KEY`, `READER_MODEL`, `QUARANTIX_API_KEY`. `.env` in `.gitignore`.
+- [ ] (C) `.env.example` with `PLANNER_API_KEY`, `READER_MODEL`, `AGENTWALL_API_KEY`. `.env` in `.gitignore`.
 - [ ] (B) Write `core/contracts.py` and `core/labels.py` with the shapes below. **All four owners review and approve.**
 - [ ] (A) Write `core/registry.py` interface (`ToolSpec`, `@tool`).
 - [ ] (D) Write 3 attack YAML files and 2 benign task YAML files as format examples.
@@ -227,7 +227,7 @@ class Event(BaseModel):            # the JSON every component speaks
 
 ### 1.2 Tool registry (A)
 
-- [ ] `@quarantix.tool(...)` decorator registers a `ToolSpec`.
+- [ ] `@agentwall.tool(...)` decorator registers a `ToolSpec`.
 - [ ] Unregistered tools resolve to a default spec: sink, high risk, external audience.
 - [ ] Per-field output labels (e.g. ticket `text` untrusted, `customer_id` trusted).
 - [ ] Tests: registration, defaults, per-field labels.
@@ -303,7 +303,7 @@ class Event(BaseModel):            # the JSON every component speaks
 
 ### 2.4 Wiring (A + B)
 
-- [ ] `quarantix.run(request, agent)` = planner → validator → interpreter (with real reader).
+- [ ] `agentwall.run(request, agent)` = planner → validator → interpreter (with real reader).
 - [ ] End-to-end test with a mocked LLM (deterministic) + one live smoke test.
 
 ### Exit check
@@ -437,12 +437,12 @@ class Event(BaseModel):            # the JSON every component speaks
 
 ## Phase 6 — Deployment features (hours 18–28, owners B and C)
 
-**Goal:** prove Quarantix is a deployable product: a gate next to the agent, a control room in the cloud.
+**Goal:** prove AgentWall is a deployable product: a gate next to the agent, a control room in the cloud.
 
 ### 6.1 SDK client (B)
 
-- [ ] `quarantix.init(api_key, agent, cloud_url)`.
-- [ ] `quarantix.guard(tools)` wraps tool functions; decisions made **locally**.
+- [ ] `agentwall.init(api_key, agent, cloud_url)`.
+- [ ] `agentwall.guard(tools)` wraps tool functions; decisions made **locally**.
 - [ ] Policy sync: poll `GET /v1/policies?since=<version>` every 5 s; keep last good copy on disk.
 - [ ] Event shipping: background batch `POST /v1/events`; buffer when offline.
 - [ ] Heartbeat every 10 s.
@@ -450,14 +450,14 @@ class Event(BaseModel):            # the JSON every component speaks
 
 ### 6.2 Guard-mode proxy, level 1 (B)
 
-- [ ] HTTP gateway `quarantix.guard.proxy`: receives tool calls, checks them, forwards allowed ones to the real tool, labels the result.
+- [ ] HTTP gateway `agentwall.guard.proxy`: receives tool calls, checks them, forwards allowed ones to the real tool, labels the result.
 - [ ] Session taint: context label = join of every result seen in the session.
 - [ ] DevOps agent uses the proxy (proves "works for agents we didn't build").
 
 ### 6.3 Packaging (C)
 
-- [ ] Dockerfiles for `quarantix` (API + proxy), `demo`, `dashboard` (nginx).
-- [ ] `docker-compose.yml` with services: `quarantix-api` (8000), `dashboard` (3000), `quarantix-proxy` (8787), `support-agent`, `devops-agent`, `attacker-server` (9000), optional `ollama` (11434).
+- [ ] Dockerfiles for `agentwall` (API + proxy), `demo`, `dashboard` (nginx).
+- [ ] `docker-compose.yml` with services: `agentwall-api` (8000), `dashboard` (3000), `agentwall-proxy` (8787), `support-agent`, `devops-agent`, `attacker-server` (9000), optional `ollama` (11434).
 - [ ] SQLite on a mounted volume; `.env` for secrets.
 - [ ] Hosted copy on one small cloud VM or container host for mentors.
 
@@ -466,7 +466,7 @@ class Event(BaseModel):            # the JSON every component speaks
 - [ ] Agent runs in a terminal; events appear on the website.
 - [ ] Change a rule on the website → agent behaviour changes within ~5 s.
 - [ ] Approval: agent pauses → click Approve → agent continues.
-- [ ] Stop `quarantix-api` → rerun attack → still blocked.
+- [ ] Stop `agentwall-api` → rerun attack → still blocked.
 
 ---
 
@@ -483,7 +483,7 @@ class Event(BaseModel):            # the JSON every component speaks
 
 ### 7.2 MCP proxy (B), optional
 
-- [ ] Quarantix as an MCP server that mirrors upstream servers' tools and checks every call.
+- [ ] AgentWall as an MCP server that mirrors upstream servers' tools and checks every call.
 - [ ] Show with Claude Desktop or Cursor if time allows.
 
 ### 7.3 Real-world replays (D)
@@ -521,7 +521,7 @@ class Event(BaseModel):            # the JSON every component speaks
   3. Protection on: same attack blocked; red path + rule on screen; genuine refund still works.
   4. Any domain: DevOps agent, poisoned log line, destructive command blocked.
   5. Results panel numbers.
-  6. Close: "Detectors guess. Quarantix enforces." Hand judges the attack lab.
+  6. Close: "Detectors guess. AgentWall enforces." Hand judges the attack lab.
 - [ ] Mentor demo script (5 min): diagram → SDK lines → terminal + live events → policy sync → remote approval → fail-safe.
 - [ ] **Record a backup video** of the full judge demo.
 
@@ -572,7 +572,7 @@ The architecture stays; the shortcuts get replaced behind the same interfaces.
 3. Postgres + real auth + key management.
 4. Signed policies and signed labels.
 5. Framework plugins for the most popular agent frameworks.
-6. Find 2–3 design partners (teams already running agents) and run Quarantix in guard mode on their staging systems.
+6. Find 2–3 design partners (teams already running agents) and run AgentWall in guard mode on their staging systems.
 
 ---
 
@@ -595,7 +595,7 @@ The architecture stays; the shortcuts get replaced behind the same interfaces.
 - Never commit `.env` or API keys.
 - Contract changes (`core/contracts.py`, `core/labels.py`, policy YAML format, event JSON) need a heads-up to the whole team.
 
-### Security of Quarantix itself
+### Security of AgentWall itself
 
 - Treat the planner's and reader's output as untrusted input to our own code (validate everything).
 - Never log full argument values; previews only.

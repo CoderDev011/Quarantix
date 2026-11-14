@@ -1,6 +1,6 @@
 # F19. Bring-your-own-domain generator
 
-**Purpose:** the strongest answer to "does it really work in any domain?". A judge types a domain, and within about 60 seconds Quarantix is protecting a brand-new agent in it, with zero engine changes.
+**Purpose:** the strongest answer to "does it really work in any domain?". A judge types a domain, and within about 60 seconds AgentWall is protecting a brand-new agent in it, with zero engine changes.
 **Priority:** SHOULD (the hand-checked hr-payroll pack is the guaranteed fallback) · **Lane:** AI · **Checkpoint:** before the freeze (H18) · **Depends on:** F03 (pack format and validator), F07, F09 (validator), F15, F21
 
 ## Provides
