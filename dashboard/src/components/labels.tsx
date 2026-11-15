@@ -12,18 +12,17 @@ const CONFIDENTIALITY_TAG: Record<string, string> = {
 export function ArgChip({ name, arg }: { name: string; arg: ArgPreviewOut }) {
   const untrusted = arg.label?.integrity === 'untrusted'
   const inferred = arg.evidence === 'inferred'
-  const color = untrusted
-    ? 'border-red-500/70 bg-red-500/10 text-red-200'
-    : 'border-emerald-500/60 bg-emerald-500/10 text-emerald-200'
+  const color = untrusted ? 'border-rose/45 bg-rose/8 text-[#a3222c]' : 'border-mint/45 bg-mint/8 text-[#0b6a49]'
   return (
     <span
-      className={`inline-flex max-w-full items-center gap-1 rounded border px-1.5 py-0.5 text-xs ${color} ${inferred ? 'border-dashed' : ''}`}
+      className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${color} ${inferred ? 'border-dashed' : ''}`}
       title={`${untrusted ? 'untrusted' : 'trusted'}${arg.evidence ? ` · evidence: ${arg.evidence}` : ''}`}
     >
-      <span className="font-medium">{name}</span>
-      <span className="truncate text-slate-300">{arg.preview}</span>
+      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${untrusted ? 'bg-rose' : 'bg-mint'}`} />
+      <span className="font-semibold">{name}</span>
+      <span className="truncate font-mono text-[11px] text-ink-2">{arg.preview}</span>
       {arg.label && (
-        <span className="rounded bg-slate-800 px-1 text-[10px] uppercase text-slate-400">
+        <span className="rounded-full bg-white px-1.5 text-[10px] font-semibold uppercase text-ink-3">
           {CONFIDENTIALITY_TAG[arg.label.confidentiality]}
         </span>
       )}
@@ -35,15 +34,15 @@ type Verdict = { text: string; className: string }
 
 export function verdictOf(event: EventOut): Verdict {
   const decision: DecisionOut | null | undefined = event.decision
-  if (event.outcome === 'blocked') return { text: 'BLOCKED', className: 'bg-red-600 text-white' }
+  if (event.outcome === 'blocked') return { text: 'Blocked', className: 'bg-rose text-white' }
   if (decision && !decision.enforced && decision.kind !== 'allow')
-    return { text: decision.kind === 'block' ? 'WOULD BLOCK' : 'WOULD ASK', className: 'bg-amber-500 text-black' }
-  if (decision?.kind === 'ask') return { text: 'APPROVED', className: 'bg-sky-600 text-white' }
-  if (event.outcome === 'error') return { text: 'ERROR', className: 'bg-slate-500 text-white' }
-  return { text: 'ALLOWED', className: 'bg-emerald-700 text-white' }
+    return { text: decision.kind === 'block' ? 'Would block' : 'Would ask', className: 'bg-amber text-ink' }
+  if (decision?.kind === 'ask') return { text: 'Approved', className: 'bg-sky text-white' }
+  if (event.outcome === 'error') return { text: 'Error', className: 'bg-ink-3 text-white' }
+  return { text: 'Allowed', className: 'bg-mint/15 text-[#0b7a54]' }
 }
 
 export function VerdictBadge({ event }: { event: EventOut }) {
   const { text, className } = verdictOf(event)
-  return <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold tracking-wide ${className}`}>{text}</span>
+  return <span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${className}`}>{text}</span>
 }

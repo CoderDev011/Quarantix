@@ -78,7 +78,7 @@ export function reasonFor(result: DefenderOut | null | undefined): string {
 
 export const OUTCOME_ICON: Record<DefenderOut['outcome'], string> = {
   breached: '💥',
-  blocked: '🛡',
+  blocked: '🛡️',
   neutralized: '⚪',
   needs_approval: '✋',
   error: '⚠️',

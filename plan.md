@@ -9,6 +9,41 @@ This is the **one plan file to follow**. It combines everything:
 
 The detailed per-feature specs live in **`docs/features/F01`–`F19`**. The binding data formats are in **`docs/contracts.md`**. The rules for every coding agent are in **`AGENTS.md`**.
 
+## Build status (2026-11-15) — read this first
+
+**Use this section as the current truth.** Everything below it is the original plan; where it
+promises something this table marks "not built", the table wins.
+
+| Area | Status | Evidence |
+|---|---|---|
+| Engine: labels, registry, policy, gate, interpreter (F01, F02, F04–F06) | built | `bash scripts/check.sh` exit 0 (531 tests, 10 import contracts) |
+| Models: LLM layer, reader, planner, naive agent (F07–F10) | built | real Gemini runs on 2026-11-15 |
+| Domain packs (F03): **support**, **devops** | built | hr-payroll, code-hosting, workspace packs **not built** |
+| Guard mode (F11) | built | fixed on a real run: inferred arguments no longer taint results |
+| SDK (F12) + `scripts/guarded_agent.py` | built, **verified live** | devops normal task: 0 blocks; planted log command: blocked by C1 (enforce) |
+| Control plane + console (F13, F20): Live, Autopilot, Proof wall, Results, Domains, Arena admin | built | dashboard builds; Docker smoke 9/9 |
+| MCP gateway (F14) | **not built** | demo fallback: SDK-guarded devops agent + slides (docs/LIVE_DEMO.md) |
+| Arena backend (F15) + big screen `/arena/screen` (F16) | built, **verified live** through the tunnel | about 24 s per result (budget 12 s: missed) |
+| Arena phone page `/arena` (F16) | **not built** (placeholder) | judges use the attack station `<tunnel>/docs` |
+| Red Agent (F17) | **not built** | |
+| Autopilot (F18) | built, tested end to end offline | live: gemini-3.1-flash-lite did **not** take the phishing-link bait in 4 tries, so the live patch flow may not start; fallback: Proof wall RW-01 → RW-05 |
+| Domain generator (F19) | built, tested with a fake model | not run with a real model |
+| Red-team runner (F21) | built | shipped traces are **hand-written ("scripted")**; record real ones before quoting numbers |
+| Proof suite (F22) | built | 7/7 scenarios pass in Docker with the real reader |
+| Packaging (F23) | built | `scripts/demo_prep.sh` prints READY; tunnel via cloudflared quick tunnel |
+
+**Demo plan:** `docs/LIVE_DEMO.md` (runbook, 3-minute script, fallbacks, do-not-claim list).
+Run `bash scripts/demo_prep.sh` before every judge group. Both agents must be in **enforce**.
+
+**Do not claim:** that the MCP gateway runs; numbers from scripted traces as model runs; that the
+SDK is a published package, supports other frameworks, or runs in production; the 12 s arena
+latency.
+
+**Open items, in priority order:** 1) the arena phone page (API ready in
+`dashboard/src/api/arena.ts`); 2) a weak baseline model so live breaches happen (Ollama
+`qwen2.5:3b` on the 16 GB laptop, or another model), rehearsed; 3) record real red-team traces
+(`scripts/redteam.py --live --record-traces`) when budget allows; 4) MCP gateway (F14 brief).
+
 ## How to use this file when building
 
 1. Find **what to build now** in Part 1 §8 (the 24-hour schedule per lane).
